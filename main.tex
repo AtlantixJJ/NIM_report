@@ -243,6 +243,26 @@ $\tilde x$表示了生成图像和真实图像的线性插值，$\alpha \in (0, 
 \subsection{图像编辑}
 
 % -- 实际设置 -- 【寇明扬】
+%\includepdf[addtotoc={1,section,1,title in toc,cc},pages=1,offset=0cm 0.5cm]{figs/pic.pdf}
+
+下面展示几组图像编辑效果的样例。
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.9\linewidth]{figs/pic.pdf}
+  \caption{\kai 编辑效果展示，共六组，每组三幅图。每组中最左边的一幅为原图，中间的一幅图为编辑图，最右边的一幅图为生成的结果图。第一行的两组为更换发色的例子，可以看出，左边的一组成功将原图中的人物的发色从白色变成了红色，而右边的一组成功将原图中的人物的发色从红色变成了黑色。第二行的两组为更换瞳色的例子，左边的一组成功将人物瞳色从红色变成了蓝色，而右边的一组将人物瞳色从蓝色变成了紫红色。第三行的两组为更换发型的例子，左边的一组成功在人物头上添加了一束紫色的头发，而右边的一组成功去掉了人物头两侧的头发，将人物从长发变成了短发。
+  可以看出，我们生成的模型可以进行对动漫人物的发色、瞳色、发型等多方面特征进行编辑，且效果出色。}
+  \label{fig:pic}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.9\linewidth]{figs/frontend.pdf}
+  \caption{\kai 图为在前端中进行图像编辑的实例。可以看出，我们实现了在前端中进行图像编辑的功能。}
+  \label{fig:frontend}
+\end{figure}
+
+
 
 % -- 选几张展示编辑效果（参考ppt） -- 【寇明扬】
 
