@@ -1,0 +1,9 @@
+Final_Report.pdf
+main.pdf
+*.aux
+*.blg
+*.log
+*.out
+*.fls
+*.gz
+.DS_Store
