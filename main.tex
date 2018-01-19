@@ -127,7 +127,23 @@
 
 \subsection{编辑图像}
 
-一个生成网络$G(z, c)$接受随机向量$z$和条件向量$c$作为输入，生成图像$I = G(z, c)$。同时用户给定编辑图像$I'$，例如一副简笔画，则可以据此给出生成图像与编辑图像之间的距离$Dist(G(z, c), I')$。假设 $G$ 已经得到，本文的基本目标是
+一个生成网络$G(z, c)$接受随机向量$z$和条件向量$c$作为输入，生成图像$I = G(z, c)$。同时用户给定编辑图像$I'$，例如一副简笔画，则可以据此给出生成图像与编辑图像之间的距离$Dist(G(z, c), I')$。设$I$在像素点$(i, j)$处的RGB颜色向量为$I_{ij}$。定义
+
+\begin{equation}
+  M_{ij} =
+  \begin{cases}
+    [0, 0, 0]   &  \text{if $\norm{I'_{ij}} = 0$} \\
+    [1, 1, 1]   &  \text{if $\norm{I'_{ij}} \neq 0$}
+  \end{cases}
+\end{equation}
+
+则有
+
+\begin{equation}
+  Dist(I, I') = \frac{\sum_{ij} |I_{ij} - I'_{ij}| \cdot M_{ij}}{1 + \sum_{ij} M_{ij}}
+\end{equation}
+
+假设 $G$ 已经得到，本文的基本目标是求使$Dist(G(z, c), I')$最小的$z$和$c$：
 
 \begin{equation}
   \arg\min_{z, c} Dist(G(z, c), I')
