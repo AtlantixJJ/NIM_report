@@ -1,14 +1,14 @@
 # Fdb version 3
-["bibtex main"] 1516355155 "main.aux" "main.bbl" "main" 1516355388
+["bibtex main"] 1516355852 "main.aux" "main.bbl" "main" 1516355852
   "./ieee.bst" 1510434086 19622 bce53be7be0d119a69bb0dd735757146 ""
   "egbib.bib" 1516351952 2096 8cd5a594aa40fcc20f5b4e9d80673a13 ""
-  "main.aux" 1516355327 3323 49f47cfa654a00eef0af1111a9fc66bd ""
+  "main.aux" 1516355789 3222 cbc44c2b6ade09236eaa6fc84aab07be ""
   "main.bcf" 0 -1 0 ""
   (generated)
-  "main.blg"
   "main.bbl"
-["pdflatex"] 1516355388 "/Users/xujianjin/Desktop/Curriculum/神经网络/Final Report/main.tex" "main.pdf" "main" 1516355388
-  "/Users/xujianjin/Desktop/Curriculum/神经网络/Final Report/main.tex" 1516355387 5881 cabf5fe3023ce6ebbc02ad6fbd6925a5 ""
+  "main.blg"
+["pdflatex"] 1516355852 "/Users/xujianjin/Desktop/Curriculum/神经网络/Final Report/main.tex" "main.pdf" "main" 1516355852
+  "/Users/xujianjin/Desktop/Curriculum/神经网络/Final Report/main.tex" 1516355851 6289 01d49607a6a7e80cfae5efb9c3c3d784 ""
   "/usr/local/texlive/2016/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/local/texlive/2016/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1136849721 2971 def0b6c1f0b107b3b936def894055589 ""
   "/usr/local/texlive/2016/texmf-dist/fonts/map/fontname/texfonts.map" 1272929888 3287 e6b82fe08f5336d4d5ebc73fb1152e87 ""
@@ -247,12 +247,12 @@
   "figs/workflow1.png" 1512313637 20904 196c5095f3ad1606fdf650b53c838df7 ""
   "figs/workflow2.png" 1512313632 28628 f3a8d676f79dc0df97702ed7dd26aa31 ""
   "finalreport.sty" 1509486178 9799 bc12907e6da0742886d28055f471c1fd ""
-  "main.aux" 1516355327 3323 49f47cfa654a00eef0af1111a9fc66bd ""
-  "main.bbl" 1516355155 246 71ee4dbda4aa9aca40476c588798b8a7 "bibtex main"
-  "main.out" 1516355327 743 7d6147d1843728d1dfb7b5a10b045103 ""
-  "main.tex" 1516355387 5881 cabf5fe3023ce6ebbc02ad6fbd6925a5 ""
+  "main.aux" 1516355789 3222 cbc44c2b6ade09236eaa6fc84aab07be ""
+  "main.bbl" 1516355852 246 71ee4dbda4aa9aca40476c588798b8a7 "bibtex main"
+  "main.out" 0 -1 0 ""
+  "main.tex" 1516355851 6289 01d49607a6a7e80cfae5efb9c3c3d784 ""
   (generated)
-  "main.aux"
-  "main.log"
   "main.pdf"
   "main.out"
+  "main.aux"
+  "main.log"
