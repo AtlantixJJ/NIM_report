@@ -22,6 +22,7 @@
 \usepackage{microtype}      % microtypography
 \usepackage{CJKutf8}
 \usepackage{graphicx}
+\usepackage{float}
 \usepackage{amsmath}
 \usepackage{pdfpages}
 \usepackage{titlesec}
@@ -247,7 +248,7 @@ $\tilde x$表示了生成图像和真实图像的线性插值，$\alpha \in (0, 
 
 下面展示几组图像编辑效果的样例，如图3和图4所示。
 
-\begin{figure}
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.9\linewidth]{figs/pic.pdf}
   \caption{\kai 编辑效果展示，共六组，每组三幅图。每组中最左边的一幅为原图，中间的一幅图为编辑图，最右边的一幅图为生成的结果图。第一行的两组为更换发色的例子，可以看出，左边的一组成功将原图中的人物的发色从白色变成了红色，而右边的一组成功将原图中的人物的发色从红色变成了黑色。第二行的两组为更换瞳色的例子，左边的一组成功将人物瞳色从红色变成了蓝色，而右边的一组将人物瞳色从蓝色变成了紫红色。第三行的两组为更换发型的例子，左边的一组成功在人物头上添加了一束紫色的头发，而右边的一组成功去掉了人物头两侧的头发，将人物从长发变成了短发。
@@ -255,7 +256,7 @@ $\tilde x$表示了生成图像和真实图像的线性插值，$\alpha \in (0, 
   \label{fig:pic}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.9\linewidth]{figs/frontend.pdf}
   \caption{\kai 图为在前端中进行图像编辑的实例。可以看出，我们实现了在前端中进行图像编辑的功能。}
@@ -268,13 +269,40 @@ $\tilde x$表示了生成图像和真实图像的线性插值，$\alpha \in (0, 
 
 % -- 结论 -- 【寇明扬】
 
-\subsection{前端}
+\subsection{网页应用}
 
-% -- 有关前端的设置 -- 【贾越凯】
+我们基于训练好的模型，构建了一个基于 B/S 架构的网页应用，可以通过 Web 浏览器进行在线图像编辑。
 
-% -- 前端的性能 -- 【贾越凯】
+\subsubsection{网页端}
+我们的网页端界面如图 \ref{figure:web1} $\sim$ 图 \ref{figure:web3}  所示，能够运行在任何一款现代浏览器上。
 
-% -- 前端的展示 -- 【贾越凯】
+\begin{figure}[H]
+  \begin{minipage}[t]{0.33\linewidth}
+      \centering\includegraphics[height=4cm]{figs/web1.png}
+      \caption{\kai 开始页面}\label{figure:web1}
+  \end{minipage}%
+  \begin{minipage}[t]{0.33\linewidth}
+      \centering\includegraphics[height=4cm]{figs/web2.png}
+      \caption{\kai 输入笔画}\label{figure:web2}
+  \end{minipage}%
+  \begin{minipage}[t]{0.33\linewidth}
+      \centering\includegraphics[height=4cm]{figs/web3.png}
+      \caption{\kai 点击提交后}\label{figure:web3}
+  \end{minipage}
+\end{figure}
+
+首次打开网页，点击 “开始按钮”，服务器会返回一张初始生成的图像。之后用户可以使用画笔工具，简单地勾勒出图片期望的变化方向，点击“提交”后，服务器就会返回在原图基础上，加上用户编辑条件后生成的图像；点击“重新生成”后，服务器会重新生成一张图片；点击“清空”能清空用户画的所有的笔画。此外，网页还支持更改画笔颜色、粗细，并能切换笔画的显示，以方便用户编辑。
+
+该网页主要用 HTML 和 JavaScript 实现，并使用了 jQurey\footnote{\url{http://jquery.com}} 和 Bootstrap \footnote{\url{http://getbootstrap.com}} 等库。图片编辑框使用了 HTML5 的 \texttt{<canvas>}，点击提交后，会将编辑框中的笔画图转成 Base64\footnote{\url{https://en.wikipedia.org/wiki/Base64}} 编码，使用 HTTP 请求发给服务器，之后服务器会返回生成图像的 Base64 编码，前端再将其作为图片编辑框的背景，显示给用户。
+
+需要注意的是，用户每次点提交时，服务器是在该用户当前图像的基础上，再根据用户提供的笔画生成新图像，而且需要支持多用户同时编辑，即需要知道该用户当前的编辑状态。我们的做法是，服务器生成图像给前端时，会附带此时的 $z$ 和 $c$ 向量。前端将其保存下来，下次点提交时再发给服务器，服务器就会根据前端提供的 $z$ 和 $c$ 生成图像，以达到保存用户编辑状态的效果。
+
+\subsubsection{服务器端}
+由于训练模型使用的是 Python，所以我们选择了基于 Python 的 Django 框架搭建服务器端。
+
+服务器端接收前端发来的笔画图，计算出 $sketch$ 和 $mask$ 矩阵，再根据前端发来的 $z$ 和 $c$，放入之前训练好的网络中，就能得到生成的图像。然后将其和修改后的 $z$ 和 $c$ 返回给前端。
+
+实际测试时，模型的运行效率非常快，生成一张图像的时间约为 10 几毫秒，主要延时在于网络传输。因此，就算是多个用户同时访问网页进行编辑，服务器也完全可以承受住这样的负载。
 
 \section{结论}
 
