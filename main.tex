@@ -139,26 +139,37 @@
 
 % --- 训练设置 -- 【xjj】
 
-设真实数据集为$D_R$，一个训练样例可以表示成$x ~ P_r$，同时随机向量z和c有$z ~ P_z$和$c ~ P_c$。构造一个判别网络$D(I)$。
+设真实数据集为$D_R$，一个训练样例可以表示成$x \sim P_r$，同时随机向量 $z$ 和 $c$ 有$z \sim P_z$和$c \sim P_c$。构造一个判别网络$D(I)$。
 
 \begin{equation}
-  \min_{\theta_G,\theta_f} \max_{\theta_D} \mathbb{E}_{(x, z, c) \sim (P_r, P_z, P_c)} \bigg[ \log D(x) + \log\Big(1 - D\big(G(z, c)\big)\Big) + \log\Big(1 - D\big(G(f(x))\big)\Big)\bigg]
+  \min_{\theta_G,\theta_f} \max_{\theta_D} \mathbb{E}_{(x, z, c) \sim (P_r, P_z, P_c)} \Big[ \log D(x) + \log\big(1 - D(G(z, c))\big) + \log\big(1 - D(G(f(x)))\big)\Big]
 \end{equation}
 
 进一步地，使用DRAGAN~\cite{kodali2017convergence}替代普通的GAN训练：
+
+\begin{equation}
+\begin{aligned}
+  \mathcal{L}_{adv}(D) &= -\mathbb{E}_{x\sim P_{data}}[\log D(x)] - \mathbb{E}_{x\sim P_{noise},c\sim P_{cond}}\big[\log(1-D(G(z,c)))\big] \\
+  \mathcal{L}_{cls}(D) &= \mathbb{E}_{x\sim P_{data}}\big[\log P_D[label_x|x]\big] + \mathbb{E}_{x\sim P_{noise},c\sim P_{cond}}\Big[\log\big(P_D[c|G(z,c)]\big)\Big] \\
+  \mathcal{L}_{gp}(D) &= \mathbb{E}_{\tilde{x}\sim P_{perturebed\_data}}\left[\big(\norm{\nabla_{\tilde{x}}D(\tilde{x})}_2-1\big)^2\right] \\
+  \mathcal{L}_{adv}(G) &= \mathbb{E}_{x\sim P_{noise},c\sim P_{cond}}\big[\log D(G(z,c))\big] \\
+  \mathcal{L}_{cls}(G) &= \mathbb{E}_{x\sim P_{noise},c\sim P_{cond}}\big[\log P_D[c|G(z,c)]\big] \\
+  \mathcal{L}(D) &= \mathcal{L}_{cls}(D) + \lambda_{adv}\mathcal{L}_{adv}(D)+ \lambda_{gp}\mathcal{L}_{gp}(D) \\
+  \mathcal{L}(G) &= \lambda_{adv}\mathcal{L}_{adv}(G) + \mathcal{L}_{cls}(G)
+\end{aligned}
+\end{equation}
 
 % -- 公式：将formule.png写成代码 -- 【jyk】
 
 % -- deprecated begin
 
-其中，$GP$表示Gradient Penalty，$L_{reg}$表示weight regularization。
+其中，$P_{cond}$ 表示给定标签下的先验分布；$\mathcal{L}_{adv}$，$\mathcal{L}_{gp}$ 和 $\mathcal{L}_{reg}$ 分别表示 adversarial，gradient penalty 和 weight regularization 的 loss。
 
 \begin{equation}
-  L_{reg} = \norm{\theta_D}_2 + \norm{\theta_G}_2
-\end{equation}
-
-\begin{equation}
-  L_{GP} = \norm{\left(\frac{\partial D(\tilde x)}{\partial \tilde x}\right)^2 - 1 }_2
+\begin{aligned}
+  \mathcal{L}_{reg} &= \norm{\theta_D}_2 + \norm{\theta_G}_2 \\
+  \mathcal{L}_{gp} &= \norm{\left(\frac{\partial D(\tilde x)}{\partial \tilde x}\right)^2 - 1 }_2
+\end{aligned}
 \end{equation}
 
 $\tilde x$表示了生成图像和真实图像的线性插值，$\alpha \in (0, 1)$是随机的插值系数。
