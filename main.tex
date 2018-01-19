@@ -25,6 +25,9 @@
 \usepackage{amsmath}
 \usepackage{pdfpages}
 \usepackage{titlesec}
+\usepackage{indentfirst}
+
+\setlength{\parindent}{2em}
 
 \newcommand{\norm}[1]{\left\lVert#1\right\rVert}
 
@@ -40,6 +43,13 @@
 % if LaTeX puts 3 of 4 authors names on the first line, and the last
 % on the second line, try using \AND instead of \And before the third
 % author name.
+
+\newcommand{\song}{\CJKfamily{zhsong}}	% 宋体
+\newcommand{\hei}{\CJKfamily{zhhei}}	% 黑体
+\newcommand{\fs}{\CJKfamily{zhfs}}		% 仿宋
+\newcommand{\kai}{\CJKfamily{zhkai}}	% 楷体
+\newcommand{\li}{\CJKfamily{zhli}}		% 隶书
+\newcommand{\you}{\CJKfamily{zhyou}}	% 幼圆
 
 \author{
   徐鉴劲 \\
@@ -87,7 +97,7 @@
 \begin{enumerate}
 \item 成功复现了高质量的动漫人物头像生成网络。
 \item 成功应用编辑图像方法于极深层的神经网络。
-\item 获得了高于基线的生成成果和编辑成果。包括生成真实度上升，生成清晰度上升(64x64 $\Rightarrow$ 128x128)和肉眼可见的编辑质量上升
+\item 获得了高于基线的生成成果和编辑成果。包括生成真实度上升，生成清晰度上升($64 \times 64 \Rightarrow 128 \times 128$)和肉眼可见的编辑质量上升
 \item 基于Web/Server的交互界面。
 \end{enumerate}
 
@@ -99,25 +109,25 @@
 
 \subsection{框架}
 
-我们的项目分为两个阶段实现，第一阶段不编辑一个给定的具体图像，先考虑编辑一个随机生成的图像，如Fig. ~\ref{fig:workflow1}；第二阶段再加入一个编码网络来完成对于具体图像的编辑，在Fig. ~\ref{fig:workflow2}中进行了说明。
+我们的项目分为两个阶段实现，第一阶段不编辑一个给定的具体图像，先考虑编辑一个随机生成的图像，如图 \ref{fig:workflow1}；第二阶段再加入一个编码网络来完成对于具体图像的编辑，在图 \ref{fig:workflow2} 中进行了说明。
 
 \begin{figure}
   \centering
   \includegraphics[width=1\linewidth]{figs/workflow1.png}
-  \caption{第一阶段的项目解决方法。从随机向量出发，由生成网络生成初始结果，用户给定简笔画和对应的遮罩，由编辑距离函数计算误差和倒数，并借此更新z，达到编辑图像的目的。蓝箭头表示数据流向，橙色箭头表示导数。}
+  \caption{\kai 第一阶段的项目解决方法。从随机向量出发，由生成网络生成初始结果，用户给定简笔画和对应的遮罩，由编辑距离函数计算误差和倒数，并借此更新 $z$，达到编辑图像的目的。蓝箭头表示数据流向，橙色箭头表示导数。}
   \label{fig:workflow1}
 \end{figure}
 
 \begin{figure}
   \centering
   \includegraphics[width=1\linewidth]{figs/workflow2.png}
-  \caption{第二阶段的项目解决方法。从一个待编辑图像出发，先通过编码网络生成z与c，然后经过生成网络生成重构结果，用户给定简笔画和对应的遮罩，由编辑距离函数计算误差和导数，并借此更新z，达到编辑图像的目的。蓝箭头表示数据流向，橙色箭头表示导数。}
+  \caption{\kai 第二阶段的项目解决方法。从一个待编辑图像出发，先通过编码网络生成 $z$ 与 $c$，然后经过生成网络生成重构结果，用户给定简笔画和对应的遮罩，由编辑距离函数计算误差和导数，并借此更新 $z$，达到编辑图像的目的。蓝箭头表示数据流向，橙色箭头表示导数。}
   \label{fig:workflow2}
 \end{figure}
 
 \subsection{编辑图像}
 
-一个生成网络$G(z, c)$接受随机向量$z$和条件向量$c$作为输入，生成图像$I = G(z, c)$。同时用户给定编辑图像$I'$，例如一副简笔画，则可以据此给出生成图像与编辑图像之间的距离$Dist(G(z, c), I')$。假设G已经得到，本文的基本目标是
+一个生成网络$G(z, c)$接受随机向量$z$和条件向量$c$作为输入，生成图像$I = G(z, c)$。同时用户给定编辑图像$I'$，例如一副简笔画，则可以据此给出生成图像与编辑图像之间的距离$Dist(G(z, c), I')$。假设 $G$ 已经得到，本文的基本目标是
 
 \begin{equation}
   \arg\min_{z, c} Dist(G(z, c), I')
@@ -132,7 +142,7 @@
 设真实数据集为$D_R$，一个训练样例可以表示成$x ~ P_r$，同时随机向量z和c有$z ~ P_z$和$c ~ P_c$。构造一个判别网络$D(I)$。
 
 \begin{equation}
-  \min_{\theta_G,\theta_f} \max_{\theta_D} \mathbb{E}_{(x, z, c) \sim (P_r, P_z, P_c)} [ log D(x) + log (1 - D(G(z, c)) + log ( 1 - D(G(f(x)))]
+  \min_{\theta_G,\theta_f} \max_{\theta_D} \mathbb{E}_{(x, z, c) \sim (P_r, P_z, P_c)} \bigg[ \log D(x) + \log\Big(1 - D\big(G(z, c)\big)\Big) + \log\Big(1 - D\big(G(f(x))\big)\Big)\bigg]
 \end{equation}
 
 进一步地，使用DRAGAN~\cite{kodali2017convergence}替代普通的GAN训练：
@@ -148,7 +158,7 @@
 \end{equation}
 
 \begin{equation}
-  L_{GP} = \norm{ (\frac{\partial D(\tilde x)}{\partial \tilde x})^2 - 1 }_2
+  L_{GP} = \norm{\left(\frac{\partial D(\tilde x)}{\partial \tilde x}\right)^2 - 1 }_2
 \end{equation}
 
 $\tilde x$表示了生成图像和真实图像的线性插值，$\alpha \in (0, 1)$是随机的插值系数。
