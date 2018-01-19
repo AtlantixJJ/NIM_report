@@ -127,7 +127,7 @@
 
 \subsection{编辑图像}
 
-一个生成网络$G(z, c)$接受随机向量$z$和条件向量$c$作为输入，生成图像$I = G(z, c)$。同时用户给定编辑图像$I'$，例如一副简笔画，则可以据此给出生成图像与编辑图像之间的距离$Dist(G(z, c), I')$。设$I$在像素点$(i, j)$处的RGB颜色向量为$I_{ij}$。定义
+一个生成网络$G(z, c)$接受随机向量$z$（遵循高斯分布）和条件向量$c$作为输入，生成图像$I = G(z, c)$。同时用户给定编辑图像$I'$，例如一副简笔画，则可以据此给出生成图像与编辑图像之间的距离$Dist(G(z, c), I')$。设$I$在像素点$(i, j)$处的RGB颜色向量为$I_{ij}$。定义
 
 \begin{equation}
   M_{ij} =
@@ -149,6 +149,34 @@
   \arg\min_{z, c} Dist(G(z, c), I')
 \end{equation}
 
+设学习率为$lr$。为求这样的$z$和$c$，先给出随机的合法初值$z_{0}$和$c_{0}$，再将距离函数对$z_{0}$和$c_{0}$求偏导：
+
+\begin{equation}
+  \Delta z_{0} = \frac{\partial}{\partial z} Dist(G(z_{0}, c_{0}), I')
+\end{equation}
+\begin{equation}
+  \Delta c_{0} = \frac{\partial}{\partial c} Dist(G(z_{0}, c_{0}), I')
+\end{equation}
+
+之后，在$z$和$c$的反函数域上以学习率$lr$使用Gradient Descent算法进行学习，并限制$\tilde z_{1}$和$\tilde c_{1}$在合法的边界中：
+\begin{equation}
+  \tilde z_{1} = arc \tanh z_{0} - lr \cdot \Delta z_{0}
+\end{equation}
+
+\begin{equation}
+  \tilde c_{1} = - \log (\frac{1}{c_{0}} - 1) - lr \cdot \Delta c_{0}
+\end{equation}
+
+最后，将$\tilde z_{1}$和$\tilde c_{1}$变换为原来的函数域，得到新的值$z_{1}$和$c_{1}$：
+
+\begin{equation}
+  z_{1} = \tanh (\tilde z_{1})
+\end{equation}
+\begin{equation}
+  c_{1} = [ sigmoid(\tilde c_{1}) ]
+\end{equation}
+
+重复这样的学习，即可使$Dist(G(z, c), I')$不断减小，直到生成符合要求的图片。
 % --- 剩余所有部分 -- 【寇明扬】
 
 \subsection{训练网络}
