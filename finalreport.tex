@@ -1,4 +1,4 @@
-\documentclass{article}
+\documentclass{ctexart}
 
 % if you need to pass options to natbib, use, e.g.:
 % \PassOptionsToPackage{numbers, compress}{natbib}
@@ -21,8 +21,8 @@
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
 \usepackage{microtype}      % microtypography
 \usepackage{CJKutf8}
+\usepackage{titlesec}
 
-\begin{CJK*}{UTF8}{gbsn}
 \title{《人工神经网络》大作业最终报告}
 
 
@@ -78,7 +78,7 @@
 
 本节详细描述大作业的框架，注意合理使用公式、图和表格。这里给出一个公式的示例：
 \begin{equation}
-P(\mathbf{Y}|\mathbf{X})  =  P(Y_R, Y_L|\mathbf{X}) = P(Y_R|\mathbf{X})P(Y_L|\mathbf{X}, Y_R) 
+P(\mathbf{Y}|\mathbf{X})  =  P(Y_R, Y_L|\mathbf{X}) = P(Y_R|\mathbf{X})P(Y_L|\mathbf{X}, Y_R)
 \end{equation}
 
 \section{实验}
@@ -115,5 +115,3 @@ modulation in rat hippocampal region CA3. {\it Journal of
   Neuroscience} {\bf 15}(7):5249-5262.
 
 \end{document}
-
-\end{CJK*}

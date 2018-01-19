@@ -1,7 +1,7 @@
-\documentclass{article}
+\documentclass[a4paper,12pt,UTF8]{ctexart}
 
 % if you need to pass options to natbib, use, e.g.:
-% \PassOptionsToPackage{numbers, compress}{natbib}
+\PassOptionsToPackage{numbers, compress}{natbib}
 % before loading nips_2016
 %
 % to avoid loading the natbib package, add option nonatbib:
@@ -24,10 +24,10 @@
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{pdfpages}
+\usepackage{titlesec}
 
 \newcommand{\norm}[1]{\left\lVert#1\right\rVert}
 
-\begin{CJK*}{UTF8}{gbsn}
 \title{《人工神经网络》大作业最终报告:神经图像编辑}
 
 
@@ -46,7 +46,7 @@
   2015011313 \\
   计算机科学与技术系 \\
   清华大学 \\
-  \texttt{xujj15@tsinghua.edu.cn}
+  \texttt{xujj15@mails.tsinghua.edu.cn}
   %% examples of more authors
   \AND
   贾越凯 \\
@@ -111,7 +111,7 @@
 \begin{figure}
   \centering
   \includegraphics[width=1\linewidth]{figs/workflow2.png}
-  \caption{第二阶段的项目解决方法。从一个待编辑图像出发，先通过编码网络生成z与c，然后经过生成网络生成重构结果，用户给定简笔画和对应的遮罩，由编辑距离函数计算误差和倒数，并借此更新z，达到编辑图像的目的。蓝箭头表示数据流向，橙色箭头表示导数。}
+  \caption{第二阶段的项目解决方法。从一个待编辑图像出发，先通过编码网络生成z与c，然后经过生成网络生成重构结果，用户给定简笔画和对应的遮罩，由编辑距离函数计算误差和导数，并借此更新z，达到编辑图像的目的。蓝箭头表示数据流向，橙色箭头表示导数。}
   \label{fig:workflow2}
 \end{figure}
 
@@ -165,7 +165,7 @@ $\tilde x$表示了生成图像和真实图像的线性插值，$\alpha \in (0, 
 
 \subsection{生成对抗训练}
 
-% -- MNIST -- 
+% -- MNIST --
 
 % -- 训练设置 -- 【徐鉴劲】
 
@@ -207,5 +207,3 @@ $\tilde x$表示了生成图像和真实图像的线性插值，$\alpha \in (0, 
 }
 
 \end{document}
-
-\end{CJK*}

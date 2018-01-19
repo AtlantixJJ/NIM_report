@@ -7,4 +7,5 @@ main.pdf
 *.fdb_latexmk
 *.fls
 *.gz
+*.pdf
 .DS_Store
