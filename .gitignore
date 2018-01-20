@@ -3,6 +3,7 @@ main.pdf
 finalreport.pdf
 *.aux
 *.blg
+*.bbl
 *.log
 *.out
 *.fdb_latexmk
