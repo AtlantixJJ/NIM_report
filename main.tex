@@ -184,7 +184,7 @@
   \arg\min_{z, c} Dist(G(z, c), I')
 \end{equation}
 
-设学习率为$lr$。为求这样的$z$和$c$，先给出随机的合法初值$z_{0}$和$c_{0}$，再将距离函数对$z_{0}$和$c_{0}$求偏导：
+设学习率为$lr$。为求这样的$z$和$c$，先给出随机的合法初值$z_{0}$和$c_{0}$，再将距离函数对$z_{0}$和$c_{0}$求偏导
 
 \begin{equation}
   \Delta z_{0} = \frac{\partial}{\partial z} Dist(G(z_{0}, c_{0}), I')
@@ -193,7 +193,8 @@
   \Delta c_{0} = \frac{\partial}{\partial c} Dist(G(z_{0}, c_{0}), I')
 \end{equation}
 
-之后，在$z$和$c$的反函数域上以学习率$lr$使用Gradient Descent算法进行学习，并限制$\tilde z_{1}$和$\tilde c_{1}$在合法的边界中：
+之后，在$z$和$c$的反函数域上以学习率$lr$使用Gradient Descent算法进行学习，得到$\tilde z_{1}$和$\tilde c_{1}$，并限制优化后的结果在合法的边界中
+
 \begin{equation}
   \tilde z_{1} = arc \tanh z_{0} - lr \cdot \Delta z_{0}
 \end{equation}
@@ -202,7 +203,7 @@
   \tilde c_{1} = - \log (\frac{1}{c_{0}} - 1) - lr \cdot \Delta c_{0}
 \end{equation}
 
-最后，将$\tilde z_{1}$和$\tilde c_{1}$变换回原来的函数域，得到新的值$z_{1}$和$c_{1}$：
+最后，将$\tilde z_{1}$和$\tilde c_{1}$变换回原来的函数域，得到新的值$z_{1}$和$c_{1}$
 
 \begin{equation}
   z_{1} = \tanh (\tilde z_{1})
@@ -239,11 +240,13 @@
 \end{aligned}
 \end{equation}
 
-其中$\tilde{x}$是经过扰动的真实数据，
+其中$\mathcal{L}_{2}$是L2正则化损失，$\tilde{x}$是经过扰动的真实数据，
 
 \begin{equation}
-\tilde{x} = x + 0.5 \times \alpha std(x) \\
-\alpha ~ uniform(0, 1)
+  \begin{aligned}
+    \tilde{x} = x + 0.5 \times \alpha std(x) \\
+    \alpha \sim U(0, 1)
+  \end{aligned}
 \end{equation}
 
 网络结构如下：
@@ -261,6 +264,24 @@
   \caption{\kai 判别网络。采用了10个Residual Block，不使用Batch Normalization~\cite{ioffe2015batch}。}
   \label{fig:discriminator}
 \end{figure}
+
+我们在探究最佳训练的过程中还使用了Wassertein GAN~\cite{2017arXiv170107875A}。
+
+% -- wassertain GAN
+
+\begin{equation}
+  \begin{aligned}
+    \mathcal{L}_{wass} = 
+  \end{aligned}
+\end{equation}
+
+% -- reconstruction GAN
+
+\begin{equation}
+  \begin{aligned}
+    \mathcal{L}_{rec} = 
+  \end{aligned}
+\end{equation}
 
 \section{实验}
 
@@ -292,7 +313,7 @@
 \begin{figure}[H]
   \centering
   \includegraphics[width=1\linewidth]{figs/good_model_wgan.png}
-  \caption{\kai WGAN中$lambda_{adv}$调节实验。实验中橘色、蓝色、红色分别对应了$lambda_{adv}=0.25, 1, 4$的情况。}
+  \caption{\kai WGAN中$lambda_{adv}$调节实验。实验中橘色、蓝色、红色分别对应了$lambda_{adv}=0.25, 1, 4$的情况。左上角的是判别器的总损失，其右是没有经过系数缩放的Wassertain损失。由于Wassertain GAN的特性，没有明确区分的fake和real判别损失，故其右边一格是空图。左下角依次是gradient penalty，判别器分类损失，生成器总损失。最右边一列是两个网络的正则化。}
   \label{fig:goodmodel_dragan}
 \end{figure}
 
