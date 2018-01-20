@@ -274,13 +274,13 @@
 为了扩展至第二阶段，我们加入了重建损失项。判别函数输入当前图像，除了输出一个真假判别项，还需要重建出 $z$ 和 $c$。生成器接受重建之后的$\hat z$和$\hat c$，生成重建图像$x_{rec}$，并加入关于重建图像的判别器损失和L1像素级别重建损失。同时为了增强判别器回归出$z$ 和 $c$的能力，还加入了判别器重建的损失，$z$由于是连续的，加入L1损失；$c$是离散的且含有类别信息，使用交叉熵作为损失。
 
 \begin{align}
-  \mathcal{L}_{IAN}(D) &= \mathcal{L}_{DRAGAN}(D) + \mathcal{L}_{reconstruct}(D) + \lambda_{adv} \mathcal{L}_{rec\_adv}(D)\\
-  \mathcal{L}_{IAN}(G) &= \mathcal{L}_{DRAGAN}(G) + \mathcal{L}_{reconstruct}(G) + \lambda_{adv} \mathcal{L}_{rec\_adv}(G) \\
-  \mathcal{L}_{reconstruct}(D) = \mathbb{E}_{x \sim P_{data}} \big[ \norm{x_{rec} - x} \big] + \mathbb{E}_{z\sim P_{noise},c\sim P_{cond}} \big[\norm{D_z(G(z, c)) - z} + P_D[c|D_c(G(z, c))] \big] \\
-  \mathcal{L}_{reconstruct}(G) = \mathbb{E}_{x \sim P_{data}} \big[ \norm{x_{rec} - x} \big] + \mathbb{E}_{z\sim P_{noise},c\sim P_{cond}} \big[\norm{D_z(G(z, c)) - z} + P_D[c|D_c(G(z, c))] \big] \\
-  \mathcal{L}_{rec\_adv}(D) = \mathbb{E}_{} \big[ log D(x_{rec}) \big] \\
-  \mathcal{L}_{rec\_adv}(G) = \mathbb{E}_{} \big[ log (1 - D(x_{rec})) \big] \\
-  x_{rec} = G(D_z(x), D_c(x))
+\mathcal{L}_{IAN}(D) &= \mathcal{L}_{DRAGAN}(D) + \mathcal{L}_{reconstruct}(D) + \lambda_{adv} \mathcal{L}_{rec\_adv}(D)\\
+\mathcal{L}_{IAN}(G) &= \mathcal{L}_{DRAGAN}(G) + \mathcal{L}_{reconstruct}(G) + \lambda_{adv} \mathcal{L}_{rec\_adv}(G) \\
+\mathcal{L}_{reconstruct}(D) &= \mathbb{E}_{x \sim P_{data}} \big[ \norm{x_{rec} - x} \big] + \mathbb{E}_{z\sim P_{noise},c\sim P_{cond}} \big[\norm{D_z(G(z, c)) - z} + P_D[c|D_c(G(z, c))] \big] \\
+\mathcal{L}_{reconstruct}(G) &= \mathbb{E}_{x \sim P_{data}} \big[ \norm{x_{rec} - x} \big] + \mathbb{E}_{z\sim P_{noise},c\sim P_{cond}} \big[\norm{D_z(G(z, c)) - z} + P_D[c|D_c(G(z, c))] \big] \\
+\mathcal{L}_{rec\_adv}(D) &= \mathbb{E}_{} \big[ log D(x_{rec}) \big] \\
+\mathcal{L}_{rec\_adv}(G) &= \mathbb{E}_{} \big[ log (1 - D(x_{rec})) \big] \\
+x_{rec} &= G(D_z(x), D_c(x))
 \end{align}
 
 扩展后的损失函数可用于第二阶段的工作，首先将真实图片经过判别器编码成z和c，然后使用生成器进行重建，就可以接入第一阶段的工作，完成重建。
@@ -288,7 +288,7 @@
 \subsection{数据集}
 我们使用的数据集取自 Getchu\footnote{\url{http://getchu.com}}网站，该网站汇聚了大量高质量动漫人物立绘，且图片中仅有单人，背景为白色，很适合作为我们的训练数据。
 
-我们使用爬虫工具从该网站上获得了 22~000 张图片，经过 OpenCV \footnote{\url{https://opencv.org}}识别人脸，然后裁剪、缩放到 $64\times64$大小，并用 illustration2vec~\cite{Saito2015Illustration2Vec}对数据集进行了分类，具体类别如图~\ref{fig:getchu_cls}。根据类别可以得到 34 维的条件向量，如图~\ref{fig:ill_c}~所示。
+我们使用爬虫工具从该网站上获得了 22~000 张图片，经过 OpenCV \footnote{\url{https://opencv.org}}识别人脸，然后裁剪、缩放到 $64\times64$大小，并用 illustration2vec~\cite{Saito2015Illustration2Vec}对数据集进行了分类，具体类别如图~\ref{fig:getchu_cls}。根据类别可以得到 34 维的条件向量，如表~\ref{table:ill_c}~所示。
 
 \begin{figure}[H]
   \centering
@@ -296,17 +296,25 @@
   \caption{\kai Getchu数据集。采用 OpenCV 识别人脸，经过裁剪、缩放到64x64的大小。}
   \label{fig:getchu_disp}
 \end{figure}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{|c|c|c|c|c|c|}
+    \hline
+    \multicolumn{6}{|c|}{类别向量}                      \\ \hline
+    位置   & $0\sim12$ & $13\sim14$ & $15\sim17$ & $18$ & $19$ \\ \hline
+    类别   & 发色 & 发长 & 发型 & 是否脸红 & 是否微笑 \\ \hline
+    位置   & $0\sim12$ & $13\sim14$ & $15\sim17$ & $18$ & $19$ \\ \hline
+    类别   & 是否张嘴 & 是否戴帽子 & 是否有缎带 & 是否戴眼镜 & 眼睛颜色 \\ \hline
+  \end{tabular}\newline
+  \caption{\kai 条件向量的构成}\label{table:ill_c}
+\end{table}
+
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.8\linewidth]{figs/label_many.jpeg}
   \caption{\kai Getchu数据集分类详细描述。使用illustration2vec对数据集进行了分类，一共形成了34个类别。}
   \label{fig:getchu_cls}
-\end{figure}
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.8\linewidth]{figs/label_tiny.png}
-  \caption{\kai 条件向量的构成。}
-  \label{fig:ill_c}
 \end{figure}
 
 \section{实验}
