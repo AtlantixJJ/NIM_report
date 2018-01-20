@@ -220,13 +220,9 @@
 
 本项目中对于多种网络结构和训练方法进行了尝试，最终确定了和~\cite{Jin2017Towards}类似的网络结构与训练方法。我们采用了使用多层Residual Block ~\cite{he2016deep} 搭建的深层生成器和判别器，使用DRAGAN ~\cite{kodali2017convergence}加上辅助分类器~\cite{odena2016conditional}的训练方法进行。
 
-设真实数据集为$D_R$，一个训练样例可以表示成$x \sim P_r$，同时随机向量 $z$ 和 $c$ 有$z \sim P_z$和$c \sim P_c$。构造一个判别网络$D(I)$。
+设真实数据集为$D_R$，一个训练样例可以表示成$x \sim P_{data}$。生成器接受随机向量 $z$ 和条件向量 $c$ 的输入，且$z \sim P_{noise}$，$c \sim P_{cond}$，$P_{cond}$ 表示给定标签下的先验分布。$\mathcal{L}_{adv}$，$\mathcal{L}_{gp}$ 和 $\mathcal{L}_{reg}$ 分别表示 adversarial，gradient penalty 和 weight regularization 的 损失函数系数。
 
-\begin{equation}
-  \min_{\theta_G,\theta_f} \max_{\theta_D} \mathbb{E}_{(x, z, c) \sim (P_r, P_z, P_c)} \Big[ \log D(x) + \log\big(1 - D(G(z, c))\big) + \log\big(1 - D(G(f(x)))\big)\Big]
-\end{equation}
-
-进一步地，使用DRAGAN的训练可以用如下公式表达
+使用DRAGAN的训练可以用如下公式表达
 
 \begin{equation}
 \begin{aligned}
@@ -240,16 +236,16 @@
 \end{aligned}
 \end{equation}
 
-其中$\mathcal{L}_{2}$是L2正则化损失，$\tilde{x}$是经过扰动的真实数据，
+其中$\mathcal{L}_{2}$是L2正则化损失，$\tilde{x}$是经过扰动的真实数据
 
 \begin{equation}
   \begin{aligned}
-    \tilde{x} = x + 0.5 \times \alpha std(x) \\
+    \tilde{x} = x + 0.5 \times \alpha \times std(x) \\
     \alpha \sim U(0, 1)
   \end{aligned}
 \end{equation}
 
-网络结构如下：
+网络结构如下
 
 \begin{figure}[H]
   \centering
@@ -269,13 +265,20 @@
 
 % -- wassertain GAN
 
+\begin{align}
+  \min_{\theta_G,\theta_f} \max_{\theta_D} \mathbb{E}_{(x, z, c) \sim (P_r, P_z, P_c)} \Big[ D(x) - D(G(z, c))\Big] \\
+  \mathcal{L}_{gp} = \norm{\left(\frac{\partial D(\tilde x)}{\partial \tilde x}\right)^2 - 1 }_2
+\end{align}
+
+$\tilde x$表示了生成图像和真实图像的线性插值，$\alpha \in (0, 1)$是随机的插值系数。
+
 \begin{equation}
-  \begin{aligned}
-    \mathcal{L}_{wass} = 
-  \end{aligned}
+  \tilde x = \alpha (x - G(z, c)) + G(z, c)
 \end{equation}
 
 % -- reconstruction GAN
+
+
 
 \begin{equation}
   \begin{aligned}
