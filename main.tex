@@ -84,6 +84,8 @@
 
 \begin{abstract}
 
+图像是人类重要的交互途径，然而大部分人却不具有绘画的才能。本项目中，编辑的方法成功地应用在了动漫人脸生成的领域，用户只用给出简笔画就可以对图像进行符合人类直觉的变换，对人物的发色、瞳色、发型进行自由度极高的编辑操作。目前有关机器图像编辑的研究中普遍没有使用一个强大的生成器，以至于生成结果十分粗糙，在编辑不稳定而极易失去图像的真实性，也没有在动漫人脸领域的应用。我们使用了自行收集的Getchu动漫人脸数据集，结合Auxiliary Classifier GAN和DRAGAN成功地训练了复杂的生成器、判别器，并将编辑操作成功地应用在了训练好的模型上。对比基线方法，我们大幅提高了生成的质量与清晰度，提升了编辑的稳定性，并完成了一个与用户交互的Web前端。此外，我们进行了多种GAN训练方法的对比，在MNIST数据集上也进行了实验。
+
 \end{abstract}
 
 
@@ -119,7 +121,7 @@
 由于动漫人脸生成任务的约束，我们没有语义精确的数据集，难以按照原文复现第一类方法，所以不与之比较。本项目比较的baseline主要有两个，一个是交互式生成对抗网络iGAN~\cite{Zhu2016Generative}，一个是神经图像编辑器Neural Photo Editor~\cite{Brock2016Neural}。这两个均可以完成编辑功能，然而他们的问题主要有：
 
 \begin{enumerate}
-\item 生成精度低。这两个工作并没有将编辑的操作应用在强大的生成网络上，生成的精度最高只能达到64x64。
+\item 生成精度低。这两个工作并没有将编辑的操作应用在强大的生成网络上，生成的精度最高只能达到 $64 \times 64$。
 \item 没有应用于动漫画风的领域上。这两个工作的数据集都是较为完善的真实数据集图片，如户外风景和人类图片数据集，然而本项目中涉及到的动漫数据集属于难度较高的类型，是从网络上爬取的数据集、规模较小、画风多样、混杂有低质量图片等等。
 \item 编辑中有很大的可能丧失图片类别的特性，丧失人脸的特征。
 \end{enumerate}
@@ -129,18 +131,25 @@
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.9\linewidth]{figs/baseline1.PNG}
-  \caption{\kai iGAN在收集到的Getchu数据集上的复现，使用iGAN开源的代码，遵循了原文的设置。图中灰色线条是边缘简笔画，其他的彩色线条是颜色简笔画，图片是在这些简笔画限制下的编辑结果。在生成的过程中经理了频繁的失败，极易丧失生成结果的真实行。展示的图片经过了精心挑选，达到了iGAN所能达到的最佳效果，然而结果仍然十分不美观。}
+  \caption{\kai iGAN在收集到的getchu数据集上的复现，使用iGAN开源的代码，遵循了原文的设置。图中灰色线条是边缘简笔画，其他的彩色线条是颜色简笔画，图片是在这些简笔画限制下的编辑结果。在生成的过程中经理了频繁的失败，极易丧失生成结果的真实行。展示的图片经过了精心挑选，达到了iGAN所能达到的最佳效果，然而结果仍然十分不美观。}
   \label{fig:baseline1}
 \end{figure}
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.9\linewidth]{figs/baseline2.PNG}
-  \caption{\kai Neural Photo Editor (NPE) 在Getchu数据集上的复现，使用了NPE开源的代码，遵循了原文的设置。从左上到右下是在神经图像编辑过程中顺序产生的，用户在1～5张中头发的位置画了红色线条，并在 6～8张中画了蓝色线条。线条在图中没有显示出来，图中有时出现的小方框是画笔的光标，可以忽略。头像颜色变化基本与预期相符，体现了编辑的有效性。}
+  \caption{\kai Neural Photo Editor (NPE) 在getchu数据集上的复现，使用了NPE开源的代码，遵循了原文的设置。从左上到右下是在神经图像编辑过程中顺序产生的，用户在$1\sim5$张中头发的位置画了红色线条，并在 $6\sim8$张中画了蓝色线条。线条在图中没有显示出来，图中有时出现的小方框是画笔的光标，可以忽略。头像颜色变化基本与预期相符，体现了编辑的有效性。}
   \label{fig:baseline2}
 \end{figure}
 
 \section{方法}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\linewidth]{figs/pic.png}
+  \caption{\kai 编辑效果展示，共六组，每组三幅图。每组中最左边的一幅为原图，中间的一幅图为编辑图，最右边的一幅图为生成的结果图。第一行为成功更换发色的例子，第二行为成功更换瞳色的例子，第三行为成功更换发型的例子。}
+  \label{fig:pic}
+\end{figure}
 
 \subsection{框架}
 
@@ -164,18 +173,18 @@
 
 我们使用训练好的生成网络$G$实现对于图像的编辑工作。
 
-一个生成网络$G(z, c)$接受随机向量$z$（遵循高斯分布）和条件向量$c$作为输入，生成图像$I = G(z, c)$。同时用户给定编辑图像$I'$，例如一副简笔画，则可以据此给出生成图像与编辑图像之间的距离$Dist(G(z, c), I')$。设$I$在像素点$(i, j)$处的RGB颜色向量为$I_{ij}$。定义$M_{ij}$为像素点$(i, j)$处的遮罩向量，含义是用户编辑的部分是否包含像素点$(i, j)$。$M_{ij}$的值只可能为全$0$或全$1$，定义如下：
-
-\begin{equation}
+一个生成网络$G(z, c)$接受随机向量$z$（遵循高斯分布）和条件向量$c$作为输入，生成图像$I = G(z, c)$。同时用户给定编辑图像$I'$，例如一副简笔画，则可以据此给出生成图像与编辑图像之间的距离$Dist(G(z, c), I')$。设$I$在像素点$(i, j)$处的RGB颜色向量为$I_{ij}$。设$M_{ij}$为像素点$(i, j)$处的遮罩向量，含义是用户编辑的部分是否包含像素点$(i, j)$。$M_{ij}$的值只可能为全$0$或全$1$，定义如下：
+%
+\begin{align}
   M_{ij} =
   \begin{cases}
     [0, 0, 0],   &  \text{$\norm{I'_{ij}} = 0$} \\
     [1, 1, 1],   &  \text{$\norm{I'_{ij}} \neq 0$}
   \end{cases}
-\end{equation}
-
-则我们可以基于已有的$M_{ij}$、$I_{ij}$和$I'_{ij}$定义原生成图像与编辑图像之间的距离，这里的距离定义为两幅图中每个用户编辑的像素点距离的$L1-norm$除以一个合理的代表用户修改总点数的值。这样定义的目的是为了仅仅对用户编辑的位置进行修改，且提供与修改像素点数无关的距离函数，避免用户修改的点过少时效果变差。即定义
-
+\end{align}
+%
+则我们可以基于已有的$M_{ij}$、$I_{ij}$和$I'_{ij}$定义原生成图像与编辑图像之间的距离，这里的距离定义为两幅图中每个用户编辑的像素点距离的 L1-norm 除以一个合理的代表用户修改总点数的值。这样定义的目的是为了仅仅对用户编辑的位置进行修改，且提供与修改像素点数无关的距离函数，避免用户修改的点过少时效果变差。即定义
+%
 \begin{align}
   Dist(I, I') = \frac{\sum_{ij} |(I_{ij} - I'_{ij}) \cdot M_{ij}|}{1 + \sum_{ij} \frac{|M_{ij}|}{\sqrt 3}}
 \end{align}
@@ -209,8 +218,6 @@
 %
 其中 $\sigma$ 为 sigmoid 函数。重复这样的学习，即可使$Dist(G(z, c), I')$不断减小，直到生成符合要求的图片。
 
-% --- 审核：要求能看懂 -- 【jyk】
-
 \subsection{训练网络}
 
 本项目中对于多种网络结构和训练方法进行了尝试，最终确定了和~\cite{Jin2017Towards}类似的网络结构与训练方法。我们采用了使用多层Residual Block ~\cite{he2016deep} 搭建的深层生成器和判别器，使用DRAGAN ~\cite{kodali2017convergence}加上辅助分类器~\cite{odena2016conditional}的训练方法进行。
@@ -229,14 +236,14 @@
   \mathcal{L}(G) &= \lambda_{adv}\mathcal{L}_{adv}(G) + \mathcal{L}_{cls}(G) + \lambda_{reg} \mathcal{L}_{2}(D)
 \end{align}
 %
-其中$\mathcal{L}_{2}$是L2正则化损失，$\tilde{x}$是经过扰动的真实数据，
+其中$\mathcal{L}_{2}$是L2正则化损失，$\tilde{x}$是经过扰动的真实数据($\sigma_x$ 为 $x$ 的标准差)，
 %
 \begin{align}
-  \tilde{x} & = x + 0.5 \times \alpha \times std(x) \\
+  \tilde{x} & = x + \frac{1}{2}\alpha\sigma_x \\
   \alpha & \sim U(0, 1)
 \end{align}
 
-网络结构如图 \ref{fig:generator} 和图 \ref{fig:discriminator} 所示。
+我们使用的网络结构如图 \ref{fig:generator} 和图 \ref{fig:discriminator} 所示。
 
 \begin{figure}[H]
   \centering
@@ -244,7 +251,6 @@
   \caption{\kai 生成网络。采用了16个Residual Block，降低了ReLU的出现频率，增加了横跨所有Residual Block的连接。}
   \label{fig:generator}
 \end{figure}
-
 \begin{figure}[H]
   \centering
   \includegraphics[width=1\linewidth]{figs/mod_disc.png}
@@ -252,26 +258,26 @@
   \label{fig:discriminator}
 \end{figure}
 
-我们在探究最佳训练的过程中还使用了Wassertein GAN~\cite{2017arXiv170107875A}。
-
-% -- wassertain GAN
-
+我们在探究最佳训练的过程中还使用了Wassertein GAN~\cite{2017arXiv170107875A}，其目标和损失函数定义如下：
+%
 \begin{align}
-  \min_{\theta_G,\theta_f} \max_{\theta_D} \mathbb{E}_{(x, z, c) \sim (P_r, P_z, P_c)} \Big[ D(x) - D(G(z, c))\Big] \\
+  \min_{\theta_G,\theta_f} \max_{\theta_D} \mathbb{E}_{(x, z, c) \sim (P_r, P_z, P_c)} \Big[ D(x) - D(G(z, c)) + \mathcal{L}_{gp} \Big] \\
   \mathcal{L}_{gp} = \norm{\left(\frac{\partial D(\tilde x)}{\partial \tilde x}\right)^2 - 1 }_2
 \end{align}
-
-$\tilde x$表示了生成图像和真实图像的线性插值，$\alpha \in (0, 1)$是随机的插值系数。
-
+%
+其中$\tilde x$表示了生成图像和真实图像的线性插值，$\alpha \in (0, 1)$是随机的插值系数，即
+%
 \begin{equation}
   \tilde x = \alpha (x - G(z, c)) + G(z, c)
 \end{equation}
+
+为了扩展至第二阶段，我们加入了重建损失项。判别函数输入当前图像，需要重建出 $z$ 和 $c$。
 
 \section{实验}
 
 \subsection{生成对抗训练}
 
-在我们完成项目的过程中，在MNIST数据集和自定义的Getchu数据集上都进行了多次实验，包括网络结构的选取、训练参数的设置，普通GAN训练、WGAN~\cite{2017arXiv170107875A}和DRAGAN等训练方法的选取。
+在我们完成项目的过程中，在MNIST数据集和自定义的getchu数据集上都进行了多次实验，包括网络结构的选取、训练参数的设置，普通GAN训练、WGAN~\cite{2017arXiv170107875A}和DRAGAN等训练方法的选取。
 
 \subsubsection{演示模型的训练}
 
@@ -307,7 +313,9 @@ $\tilde x$表示了生成图像和真实图像的线性插值，$\alpha \in (0, 
   \label{fig:goodmodel_wgan}
 \end{figure}
 
-训练过程中loss的变化如~\ref{fig:goodmodel_wgan}所示。我们发现WGAN的判别器loss呈现抛物线的形状，在前中期不断上升，在后期开始一路下滑。在众多WGAN的文献中WGAN普遍呈现初期是较大的负数，之后稳定上升的情况，没有关于先升后降的请情况。判别器损失越趋向于负数，则其判别出生成图像的能力越强，虽然无法推断后期的下降是由什么引起，但是从生成结果~\ref{fig:wgan_evolve}中并没有看出明显的质量下降，网络没有出现训练崩溃的情况。
+训练过程中loss的变化如~\ref{fig:goodmodel_wgan}所示。我们发现WGAN的判别器loss呈现抛物线的形状，在前中期不断上升，在后期开始一路下滑。在众多WGAN的文献中WGAN普遍呈现初期是较大的负数，之后稳定上升的情况，没有关于先升后降应当如何解释的记载。
+
+判别器损失越趋向于负数，则其判别出生成图像的能力越强，虽然无法推断后期的下降是由什么引起，但是从生成结果~\ref{fig:wgan_evolve}中并没有看出明显的质量下降，网络没有出现训练崩溃的情况。
 
 \begin{figure}[H]
   \centering
@@ -316,42 +324,11 @@ $\tilde x$表示了生成图像和真实图像的线性插值，$\alpha \in (0, 
   \label{fig:wgan_evolve}
 \end{figure}
 
-最终我们确定了WGAN使用$\lambda_{adv}=1$作为
-
-% -- MNIST --
-
-% -- 训练设置 -- 【徐鉴劲】
-
-% -- IAN与DRAGAN的对比 -- 【徐鉴劲】
-
-% -- GETCHU -- 【徐鉴劲】
-
-% -- DRAGAN网络的loss图、中间演变 -- 【徐鉴劲】
+最终我们确定了WGAN使用$\lambda_{adv}=1$作为WGAN训练的设置。然而与DRAGAN的训练结果相比，WGAN的生成质量略有不如，最终选用DRAGAN作为网络训练的方法。
 
 \subsection{图像编辑}
 
-\subsubsection{实际设置}
-
-在实际测试中，我们经过测试，最终选择了使用DRAGAN训练的模型进行图像编辑。
-
-同时，我们对$z$和$c$选择了不同的学习率。经过调试，我们将$z$的学习率设置为$0.20$，$c$的学习率设置为$0.10$。我们在原先将学习率在函数中定义为常数，修改较为麻烦，后来为了方便调试，我们将学习率的获取方式修改为从文件中读取，这样可以在不关闭前端的情况下修改学习率进行调试，大大加快了调试速度，最终获得了效果较为优秀的参数。
-
-我们原先的想法是直接对于$z$和$c$在原函数域上进行训练，但经过推导，我们认为这样的训练并不符合$z$和$c$的分布，因此训练效果较差。因此我们最终选择对于$z$在$\tanh$函数的反函数域上的对应值$\tilde z$和$c$在$sigmoid$函数的反函数域上的对应值$\tilde c$进行训练。经过这样的修改，我们取得了较好的的训练效果。
-
-为了使$z$和$c$在修改后仍然有意义，我们对于$z$和$c$在反函数域上的对应值$\tilde z$和$\tilde c$进行了边界限制，将$\tilde z$和$\tilde c$的取值范围限制在$(-10.0, 10.0)$之间，避免不合法的参数出现。同时，因为$c$是由多个代表不同人物特征，如发色、瞳色等的one-hot向量连接成的向量，我们对于由经过训练后的$\tilde c'$生成的$c'$向量也进行了类似的处理，让$c'$在每个对应的部分为one-hot向量，以保证数据合法性。
-
-\subsubsection{效果展示}
-
 将编辑操作应用于训练好的网络，我们得到了效果优秀的图像生成和编辑效果。如图~\ref{fig:pic}所示，我们的模型我们的模型能够生成高质量的图片，并对其进行稳定的编辑，在编辑过程中不容易丧失图片的真实性。同时编辑支持多种功能，眼睛、头发的颜色，发型等可以按照简笔画给定的方式变化。
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.9\linewidth]{figs/pic.png}
-  \caption{\kai 编辑效果展示，共六组，每组三幅图。每组中最左边的一幅为原图，中间的一幅图为编辑图，最右边的一幅图为生成的结果图。第一行为成功更换发色的例子，第二行为成功更换瞳色的例子，第三行为成功更换发型的例子。}
-  \label{fig:pic}
-\end{figure}
-
-
 
 在图~\ref{fig:pic}中，第一行的两组为更换发色的例子，第二行的两组为更换瞳色的例子，第三行的两组为更换发型的例子。可以看出，第一行中，左边的一组成功将原图中的人物的发色从白色变成了红色，而右边的一组成功将原图中的人物的发色从红色变成了黑色。第二行中，左边的一组成功将人物瞳色从红色变成了蓝色，而右边的一组将人物瞳色从蓝色变成了紫红色。第三行中，左边的一组成功在人物头上添加了一束紫色的头发，而右边的一组成功去掉了人物头两侧的头发，将人物从长发变成了短发。
 
