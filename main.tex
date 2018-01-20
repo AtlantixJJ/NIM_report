@@ -156,63 +156,56 @@
 \begin{figure}[H]
   \centering
   \includegraphics[width=1\linewidth]{figs/workflow2.png}
-  \caption{\kai 第二阶段的项目解决方法。从一个待编辑图像出发，先通过编码网络生成 $z$ 与 $c$，然后经过生成网络生成重构结果，用户给定简笔画和对应的遮罩，由编辑距离函数计算误差和导数，并借此更新 $z$，达到编辑图像的目的。蓝箭头表示数据流向，橙色箭头表示导数。}
+  \caption{\kai 第二阶段的项目解决方法。从一个待编辑图像出发，先通过编码网络生成 $z$ 与 $c$，然后经过生成网络生成重构结果，用户给定简笔画(sketch)和对应的遮罩(mask)，由编辑距离函数计算误差和导数，并借此更新 $z$，达到编辑图像的目的。蓝箭头表示数据流向，橙色箭头表示导数。}
   \label{fig:workflow2}
 \end{figure}
 
 \subsection{编辑图像}
 
-一个生成网络$G(z, c)$接受随机向量$z$（遵循高斯分布）和条件向量$c$作为输入，生成图像$I = G(z, c)$。同时用户给定编辑图像$I'$，例如一副简笔画，则可以据此给出生成图像与编辑图像之间的距离$Dist(G(z, c), I')$。设$I$在像素点$(i, j)$处的RGB颜色向量为$I_{ij}$。定义
-
-\begin{equation}
+设一个生成网络$G(z, c)$接受随机向量$z$~(遵循高斯分布)和条件向量$c$作为输入，能够生成一副图像$I = G(z, c)$。同时用户给定编辑图像$I'$，例如一副简笔画，则可以据此给出生成图像与编辑图像之间的距离$Dist(G(z, c), I')$。设$I$在像素点$(i, j)$处的RGB颜色向量为$I_{ij}$，定义遮罩
+%
+\begin{align}
   M_{ij} =
   \begin{cases}
-    [0, 0, 0]   &  \text{if $\norm{I'_{ij}} = 0$} \\
-    [1, 1, 1]   &  \text{if $\norm{I'_{ij}} \neq 0$}
+    [0, 0, 0],   &  \text{$\norm{I'_{ij}} = 0$} \\
+    [1, 1, 1],   &  \text{$\norm{I'_{ij}} \neq 0$}
   \end{cases}
-\end{equation}
-
+\end{align}
+%
 则有
-
-\begin{equation}
+%
+\begin{align}
   Dist(I, I') = \frac{\sum_{ij} |I_{ij} - I'_{ij}| \cdot M_{ij}}{1 + \sum_{ij} M_{ij}}
-\end{equation}
-
-假设 $G$ 已经得到，本文的基本目标是求使$Dist(G(z, c), I')$最小的$z$和$c$：
-
-\begin{equation}
+\end{align}
+%
+假设 $G$ 已经得到，本文的基本目标是求使$Dist(G(z, c), I')$最小的$z$和$c$，即
+%
+\begin{align}
   \arg\min_{z, c} Dist(G(z, c), I')
-\end{equation}
-
-设学习率为$lr$。为求这样的$z$和$c$，先给出随机的合法初值$z_{0}$和$c_{0}$，再将距离函数对$z_{0}$和$c_{0}$求偏导
-
-\begin{equation}
-  \Delta z_{0} = \frac{\partial}{\partial z} Dist(G(z_{0}, c_{0}), I')
-\end{equation}
-\begin{equation}
-  \Delta c_{0} = \frac{\partial}{\partial c} Dist(G(z_{0}, c_{0}), I')
-\end{equation}
-
-之后，在$z$和$c$的反函数域上以学习率$lr$使用Gradient Descent算法进行学习，得到$\tilde z_{1}$和$\tilde c_{1}$，并限制优化后的结果在合法的边界中
-
-\begin{equation}
-  \tilde z_{1} = arc \tanh z_{0} - lr \cdot \Delta z_{0}
-\end{equation}
-
-\begin{equation}
-  \tilde c_{1} = - \log (\frac{1}{c_{0}} - 1) - lr \cdot \Delta c_{0}
-\end{equation}
-
-最后，将$\tilde z_{1}$和$\tilde c_{1}$变换回原来的函数域，得到新的值$z_{1}$和$c_{1}$
-
-\begin{equation}
-  z_{1} = \tanh (\tilde z_{1})
-\end{equation}
-\begin{equation}
-  c_{1} = [ sigmoid(\tilde c_{1}) ]
-\end{equation}
-
-重复这样的学习，即可使$Dist(G(z, c), I')$不断减小，直到生成符合要求的图片。
+\end{align}
+%
+为求这样的$z$和$c$，先给出随机的合法初值$z_{0}$和$c_{0}$，再将距离函数对$z_{0}$和$c_{0}$求偏导：
+%
+\begin{align}
+  \Delta z_{0} & = \frac{\partial}{\partial z} Dist(G(z_{0}, c_{0}), I') \\
+  \Delta c_{0} & = \frac{\partial}{\partial c} Dist(G(z_{0}, c_{0}), I')
+\end{align}
+%
+之后，在$z$和$c$的反函数域上以学习率$lr$使用梯度下降(Gradient Descent)算法进行学习，并限制$\tilde z_{1}$和$\tilde c_{1}$在合法的边界中：
+%
+\begin{align}
+  \tilde z_{1} & = \mathrm{arctanh}(z_{0}) - lr \cdot \Delta z_{0} \\
+  \tilde c_{1} & = - \log \left(\frac{1}{c_{0}} - 1\right) - lr \cdot \Delta c_{0}
+\end{align}
+%
+最后，将$\tilde z_{1}$和$\tilde c_{1}$变换回原来的函数域，得到新的值$z_{1}$和$c_{1}$：
+%
+\begin{align}
+  z_{1} & = \tanh (\tilde z_{1}) \\
+  c_{1} & = \sigma(\tilde c_{1})
+\end{align}
+%
+其中 $\sigma$ 为 sigmoid 函数。重复这样的学习，即可使$Dist(G(z, c), I')$不断减小，直到生成符合要求的图片。
 
 % --- 审核：要求能看懂 -- 【jyk】
 
@@ -222,10 +215,9 @@
 
 设真实数据集为$D_R$，一个训练样例可以表示成$x \sim P_{data}$。生成器接受随机向量 $z$ 和条件向量 $c$ 的输入，且$z \sim P_{noise}$，$c \sim P_{cond}$，$P_{cond}$ 表示给定标签下的先验分布。$\mathcal{L}_{adv}$，$\mathcal{L}_{gp}$ 和 $\mathcal{L}_{reg}$ 分别表示 adversarial，gradient penalty 和 weight regularization 的 损失函数系数。
 
-使用DRAGAN的训练可以用如下公式表达
-
-\begin{equation}
-\begin{aligned}
+使用DRAGAN的训练可以用如下公式表达：
+%
+\begin{align}
   \mathcal{L}_{adv}(D) &= -\mathbb{E}_{x\sim P_{data}}[\log D(x)] - \mathbb{E}_{x\sim P_{noise},c\sim P_{cond}}\big[\log(1-D(G(z,c)))\big] \\
   \mathcal{L}_{cls}(D) &= \mathbb{E}_{x\sim P_{data}}\big[\log P_D[label_x|x]\big] + \mathbb{E}_{x\sim P_{noise},c\sim P_{cond}}\Big[\log\big(P_D[c|G(z,c)]\big)\Big] \\
   \mathcal{L}_{gp}(D) &= \mathbb{E}_{\tilde{x}\sim P_{perturebed\_data}}\left[\big(\norm{\nabla_{\tilde{x}}D(\tilde{x})}_2-1\big)^2\right] \\
@@ -233,19 +225,16 @@
   \mathcal{L}_{cls}(G) &= \mathbb{E}_{x\sim P_{noise},c\sim P_{cond}}\big[\log P_D[c|G(z,c)]\big] \\
   \mathcal{L}(D) &= \mathcal{L}_{cls}(D) + \lambda_{adv}\mathcal{L}_{adv}(D) + \lambda_{gp}\mathcal{L}_{gp}(D) + \lambda_{reg} \mathcal{L}_{2}(D) \\
   \mathcal{L}(G) &= \lambda_{adv}\mathcal{L}_{adv}(G) + \mathcal{L}_{cls}(G) + \lambda_{reg} \mathcal{L}_{2}(D)
-\end{aligned}
-\end{equation}
+\end{align}
+%
+其中$\mathcal{L}_{2}$是L2正则化损失，$\tilde{x}$是经过扰动的真实数据，
+%
+\begin{align}
+  \tilde{x} & = x + 0.5 \times \alpha \times std(x) \\
+  \alpha & \sim U(0, 1)
+\end{align}
 
-其中$\mathcal{L}_{2}$是L2正则化损失，$\tilde{x}$是经过扰动的真实数据
-
-\begin{equation}
-  \begin{aligned}
-    \tilde{x} = x + 0.5 \times \alpha \times std(x) \\
-    \alpha \sim U(0, 1)
-  \end{aligned}
-\end{equation}
-
-网络结构如下
+网络结构如图 \ref{fig:generator} 和图 \ref{fig:discriminator} 所示。
 
 \begin{figure}[H]
   \centering
@@ -278,13 +267,9 @@ $\tilde x$表示了生成图像和真实图像的线性插值，$\alpha \in (0, 
 
 % -- reconstruction GAN
 
-
-
-\begin{equation}
-  \begin{aligned}
-    \mathcal{L}_{rec} = 
-  \end{aligned}
-\end{equation}
+\begin{align}
+  \mathcal{L}_{rec} =
+\end{align}
 
 \section{实验}
 
@@ -380,7 +365,7 @@ $\tilde x$表示了生成图像和真实图像的线性插值，$\alpha \in (0, 
 
 服务器端接收前端发来的笔画图，计算出 $sketch$ 和 $mask$ 矩阵，再根据前端发来的 $z$ 和 $c$，放入之前训练好的网络中，就能得到生成的图像。然后将其和修改后的 $z$ 和 $c$ 返回给前端。
 
-实际测试时，模型的运行效率非常快，生成一张图像的时间约为 10 几毫秒，主要延时在于网络传输。因此，就算是多个用户同时访问网页进行编辑，服务器也完全可以承受住这样的负载。
+实际测试时，模型的运行效率非常快，生成一张图像的时间十几毫秒，主要延时在于网络传输。因此，就算是多个用户同时访问网页进行编辑，服务器也完全可以承受住这样的负载。
 
 \section{结论}
 
