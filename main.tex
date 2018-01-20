@@ -291,12 +291,19 @@ $\tilde x$表示了生成图像和真实图像的线性插值，$\alpha \in (0, 
 \end{figure}
 
 可以看出生成器的损失除了刚刚开始的震荡较为剧烈以外，整体在稳步下降。
+查看固定随机数的生成结果，如~\ref{fig:dragan_evolve}所示。从每一个随机种子生成的图片可以看到生成的不断完善、生成结果质量的稳定上升。
 
-% 生成结果演变
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1\linewidth]{figs/good_model_dragan.png}
+  \caption{\kai 演示模型的训练loss图。左上角开始的Discriminator Loss是判别器的总损失，其右的Fake和Real损失分别是判别器识别生成图片和真实图片的损失。左下角的gradient penalty如上文所述，其右是判别器分类图片的交叉熵损失。再右边是Generator Loss的总损失，最右边是两个网络的正则损失。}
+  \label{fig:dragan_evolve}
+\end{figure}
+
 
 \subsubsection{参数调节实验}
 
-此处展示的是探究WGAN中$\lambda_{adv}$比例的实验。与演示模型的训练不同，此时我们使用的是Wassertain GAN而不是DRAGAN，在训练的初期不稳定而在中后期十分稳定。训练的学习率从$1 \times 10^{-4}$开始，经过$1 \times 10^{5}$的迭代后
+此处展示的是探究WGAN中$\lambda_{adv}$比例的实验。与演示模型的训练不同，此时我们使用的是Wassertain GAN而不是DRAGAN，在训练的初期不稳定而在中后期十分稳定。训练的学习率从$1 \times 10^{-4}$开始，经过$1 \times 10^{5}$的迭代后学习率开始线性下降，经过$1 \times 10^{5}$的迭代降到$1 \times 10^{-5}$。
 
 \begin{figure}[H]
   \centering
