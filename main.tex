@@ -285,6 +285,30 @@
 
 扩展后的损失函数可用于第二阶段的工作，首先将真实图片经过判别器编码成z和c，然后使用生成器进行重建，就可以接入第一阶段的工作，完成重建。
 
+\subsection{数据集}
+我们使用的数据集取自 Getchu\footnote{\url{http://getchu.com}}网站，该网站汇聚了大量高质量动漫人物立绘，且图片中仅有单人，背景为白色，很适合作为我们的训练数据。
+
+我们使用爬虫工具从该网站上获得了 22~000 张图片，经过 OpenCV \footnote{\url{https://opencv.org}}识别人脸，然后缩放、裁剪到 $64\times64$大小，并用 illustration2vec~\cite{Saito2015Illustration2Vec}对数据集进行了分类，具体类别如图~\ref{fig:getchu_cls}。根据类别可以得到 34 维的条件向量，如图~\ref{fig:ill_c}~所示。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.5\linewidth]{figs/ex6.png}
+  \caption{\kai Getchu数据集。采用opencv识别人脸，经过crop、scale到64x64的大小。}
+  \label{fig:getchu_disp}
+\end{figure}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\linewidth]{figs/label_many.jpeg}
+  \caption{\kai Getchu数据集分类详细描述。使用illustration2vec对数据集进行了分类，一共形成了34个类别。}
+  \label{fig:getchu_cls}
+\end{figure}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\linewidth]{figs/label_tiny.png}
+  \caption{\kai 条件向量的构成。}
+  \label{fig:ill_c}
+\end{figure}
+
 \section{实验}
 \subsection{生成对抗训练}
 
