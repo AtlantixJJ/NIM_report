@@ -242,12 +242,15 @@
 其中$\tilde{x}$是经过扰动的真实数据，
 
 \begin{equation}
-\tilde{x} = x \times 0.5 std(x) 
+\tilde{x} = x + 0.5 \times \alpha std(x) \\
+\alpha ~ uniform(0, 1)
 \end{equation}
 
 \section{实验}
 
 \subsection{生成对抗训练}
+
+在我们完成项目的过程中，在MNIST数据集和自定义的Getchu数据集上都进行了多次实验，包括网络结果的选取，普通GAN训练，WGAN~\cite{2017arXiv170107875A}和DRAGAN训练方法。
 
 % -- MNIST --
 
