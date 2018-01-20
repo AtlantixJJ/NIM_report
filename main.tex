@@ -248,13 +248,13 @@
 \begin{figure}[H]
   \centering
   \includegraphics[width=1\linewidth]{figs/g_net_moe.png}
-  \caption{\kai 生成网络。采用了16个Residual Block，降低了ReLU的出现频率，增加了横跨所有Residual Block的连接。}
+  \caption{\kai 生成网络。采用了16个Residual Block，降低了ReLU的出现频率，增加了横跨所有Residual Block的连接。图片来自于~\cite{Jin2017Towards}。}
   \label{fig:generator}
 \end{figure}
 \begin{figure}[H]
   \centering
   \includegraphics[width=1\linewidth]{figs/mod_disc.png}
-  \caption{\kai 判别网络。采用了10个Residual Block，不使用Batch Normalization~\cite{ioffe2015batch}。}
+  \caption{\kai 判别网络。采用了10个Residual Block，不使用Batch Normalization~\cite{ioffe2015batch}。图片来自于~\cite{Jin2017Towards}。}
   \label{fig:discriminator}
 \end{figure}
 
@@ -271,7 +271,7 @@
   \tilde x = \alpha (x - G(z, c)) + G(z, c)
 \end{equation}
 
-为了扩展至第二阶段，我们加入了重建损失项。判别函数输入当前图像，除了输出一个真假判别项，还需要重建出 $z$ 和 $c$。生成器接受重建之后的$\hat z$和$\hat c$，生成重建图像$x_{rec}$，并加入关于重建图像的判别器损失和L1像素级别重建损失。
+为了扩展至第二阶段，我们加入了重建损失项。判别函数输入当前图像，除了输出一个真假判别项，还需要重建出 $z$ 和 $c$。生成器接受重建之后的$\hat z$和$\hat c$，生成重建图像$x_{rec}$，并加入关于重建图像的判别器损失和L1像素级别重建损失。同时为了增强判别器回归出$z$ 和 $c$的能力，还加入了判别器重建的损失，$z$由于是连续的，加入L1损失；$c$是离散的且含有类别信息，使用交叉熵作为损失。
 
 \begin{align}
   \mathcal{L}_{IAN}(D) &= \mathcal{L}_{DRAGAN}(D) + \mathcal{L}_{reconstruct}(D) + \lambda_{adv} \mathcal{L}_{rec\_adv}(D)\\
@@ -283,7 +283,7 @@
   x_{rec} = G(D_z(x), D_c(x))
 \end{align}
 
-扩展后的损失函数可用于
+扩展后的损失函数可用于第二阶段的工作，首先将真实图片经过判别器编码成z和c，然后使用生成器进行重建，就可以接入第一阶段的工作，完成重建。
 
 \section{实验}
 
@@ -340,6 +340,16 @@
 
 \subsubsection{MNIST的IAN训练}
 
+使用上文中的IAN损失，我们成功训练了带AutoEncoder功能的判别器。从~\ref{fig:mnist_ian}中可以看出生成数字和重建数字的演变。生成的质量在稳步提升，数字的比划变得越来越清晰。值得注意的是重建数字在较早的时刻已经能够完成正确类别的重建，证明判别器学习c的重建快于重建z的学习，也证明生成器较早低学习到了c表示类别的能力。
+
+然而具体数字的形状在训练较为晚期的时候依然没能有准确的重建，可能是由于使用L1损失函数作为z重建的损失函数并不合适，也可能是由于损失函数之间系数不平衡，需要后续研究进行确认。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1\linewidth]{figs/mnist.png}
+  \caption{\kai NNIST上的IAN训练。由上至下第一行是固定z和c生成的结果，第二行是重建的结果，第三行红框之中的是用于重建的原图。从左至右是25k, 50k, 100k, 200k迭代时候的结果，生成质量和重建质量的提升十分明显。}
+  \label{fig:mnist_ian}
+\end{figure}
 
 
 \subsection{图像编辑}
