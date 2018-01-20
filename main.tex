@@ -113,20 +113,31 @@
 
 \section{相关工作}
 
-% --- 所有 --【徐鉴劲】
 
-本项目比较的baseline主要有两个，一个是交互式生成对抗网络iGAN~\cite{Zhu2016Generative}，一个是神经图像编辑器Neural Photo Editor~\cite{Brock2016Neural}。这两个均可以完成编辑功能，然而他们的问题主要有：
+现有的研究中，与草图生成图像相关的研究可以分为两类，一类是使用语义图像作为输入的条件生成网络，一类是将编辑过程看作可优化的过程，调整生成器的输入的方法。前一类以pix2pix为代表~\cite{isola2016image}，输入一个精确的语义地图(semantic segmentation map)，每一个像素表明了所属的物体类别，通过一个变化后的AutoEncoder输出生成图像。后一类使用普通的生成网络，接受随机向量的输入，输出生成图像，通过设计一种改变输入随机向量的方法来使得网络生成靠近期望结果的输出。
+
+由于动漫人脸生成任务的约束，我们没有语义精确的数据集，难以按照原文复现第一类方法，所以不与之比较。本项目比较的baseline主要有两个，一个是交互式生成对抗网络iGAN~\cite{Zhu2016Generative}，一个是神经图像编辑器Neural Photo Editor~\cite{Brock2016Neural}。这两个均可以完成编辑功能，然而他们的问题主要有：
 
 \begin{enumerate}
 \item 生成精度低。这两个工作并没有将编辑的操作应用在强大的生成网络上，生成的精度最高只能达到64x64。
-\item 没有应用于
+\item 没有应用于动漫画风的领域上。这两个工作的数据集都是较为完善的真实数据集图片，如户外风景和人类图片数据集，然而本项目中涉及到的动漫数据集属于难度较高的类型，是从网络上爬取的数据集、规模较小、画风多样、混杂有低质量图片等等。
+\item 编辑中有很大的可能丧失图片类别的特性，丧失人脸的特征。
 \end{enumerate}
+
+这些问题在下面的例子中都有体现，然而下面的例子已经是经过多次尝试而得到的最好结果。
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.9\linewidth]{figs/frontend.pdf}
-  \caption{\kai 项目效果展示。用户通过网页前端绘制简笔画，提交到后台，经过神经网络的优化编辑以后，返回一个符合编辑预期的图像。}
-  \label{fig:frontend}
+  \includegraphics[width=0.9\linewidth]{figs/baseline1.PNG}
+  \caption{\kai iGAN在收集到的Getchu数据集上的复现，使用iGAN开源的代码，遵循了原文的设置。图中灰色线条是边缘简笔画，其他的彩色线条是颜色简笔画，图片是在这些简笔画限制下的编辑结果。在生成的过程中经理了频繁的失败，极易丧失生成结果的真实行。展示的图片经过了精心挑选，达到了iGAN所能达到的最佳效果，然而结果仍然十分不美观。}
+  \label{fig:baseline1}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\linewidth]{figs/baseline2.PNG}
+  \caption{\kai Neural Photo Editor (NPE) 在Getchu数据集上的复现，使用了NPE开源的代码，遵循了原文的设置。从左上到右下是在神经图像编辑过程中顺序产生的，用户在1～5张中头发的位置画了红色线条，并在 6～8张中画了蓝色线条。头像颜色变化基本与预期相符，体现了编辑的有效性。}
+  \label{fig:baseline2}
 \end{figure}
 
 \section{方法}

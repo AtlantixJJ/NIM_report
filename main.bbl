@@ -1,0 +1,41 @@
+\begin{thebibliography}{1}\itemsep=-1pt
+
+\bibitem{Brock2016Neural}
+A.~Brock, T.~Lim, J.~M. Ritchie, and N.~Weston.
+\newblock Neural photo editing with introspective adversarial networks.
+\newblock 2016.
+
+\bibitem{he2016deep}
+K.~He, X.~Zhang, S.~Ren, and J.~Sun.
+\newblock Deep residual learning for image recognition.
+\newblock In {\em Proceedings of the IEEE conference on computer vision and
+  pattern recognition}, pages 770--778, 2016.
+
+\bibitem{isola2016image}
+P.~Isola, J.-Y. Zhu, T.~Zhou, and A.~A. Efros.
+\newblock Image-to-image translation with conditional adversarial networks.
+\newblock {\em arXiv preprint arXiv:1611.07004}, 2016.
+
+\bibitem{Jin2017Towards}
+Y.~Jin, J.~Zhang, M.~Li, Y.~Tian, H.~Zhu, and Z.~Fang.
+\newblock Towards the automatic anime characters creation with generative
+  adversarial networks.
+\newblock 2017.
+
+\bibitem{kodali2017convergence}
+N.~Kodali, J.~Abernethy, J.~Hays, and Z.~Kira.
+\newblock On convergence and stability of gans.
+\newblock {\em arXiv preprint arXiv:1705.07215}, 2017.
+
+\bibitem{odena2016conditional}
+A.~Odena, C.~Olah, and J.~Shlens.
+\newblock Conditional image synthesis with auxiliary classifier gans.
+\newblock {\em arXiv preprint arXiv:1610.09585}, 2016.
+
+\bibitem{Zhu2016Generative}
+J.~Y. Zhu, P.~Krähenbühl, E.~Shechtman, and A.~A. Efros.
+\newblock Generative visual manipulation on the natural image manifold.
+\newblock In {\em European Conference on Computer Vision}, pages 597--613,
+  2016.
+
+\end{thebibliography}
