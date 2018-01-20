@@ -136,7 +136,7 @@
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.9\linewidth]{figs/baseline2.PNG}
-  \caption{\kai Neural Photo Editor (NPE) 在Getchu数据集上的复现，使用了NPE开源的代码，遵循了原文的设置。从左上到右下是在神经图像编辑过程中顺序产生的，用户在1～5张中头发的位置画了红色线条，并在 6～8张中画了蓝色线条。头像颜色变化基本与预期相符，体现了编辑的有效性。}
+  \caption{\kai Neural Photo Editor (NPE) 在Getchu数据集上的复现，使用了NPE开源的代码，遵循了原文的设置。从左上到右下是在神经图像编辑过程中顺序产生的，用户在1～5张中头发的位置画了红色线条，并在 6～8张中画了蓝色线条。线条在图中没有显示出来，图中有时出现的小方框是画笔的光标，可以忽略。头像颜色变化基本与预期相符，体现了编辑的有效性。}
   \label{fig:baseline2}
 \end{figure}
 
@@ -246,11 +246,55 @@
 \alpha ~ uniform(0, 1)
 \end{equation}
 
+网络结构如下：
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1\linewidth]{figs/g_net_moe.png}
+  \caption{\kai 生成网络。采用了16个Residual Block，降低了ReLU的出现频率，增加了横跨所有Residual Block的连接。}
+  \label{fig:generator}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1\linewidth]{figs/mod_disc.png}
+  \caption{\kai 判别网络。采用了10个Residual Block，不使用Batch Normalization~\cite{ioffe2015batch}。}
+  \label{fig:discriminator}
+\end{figure}
+
 \section{实验}
 
 \subsection{生成对抗训练}
 
-在我们完成项目的过程中，在MNIST数据集和自定义的Getchu数据集上都进行了多次实验，包括网络结果的选取，普通GAN训练，WGAN~\cite{2017arXiv170107875A}和DRAGAN训练方法。
+在我们完成项目的过程中，在MNIST数据集和自定义的Getchu数据集上都进行了多次实验，包括网络结构的选取、训练参数的设置，普通GAN训练、WGAN~\cite{2017arXiv170107875A}和DRAGAN等训练方法的选取。
+
+\subsubsection{演示模型的训练}
+
+最终我们确定的训练设置是：Adam~\cite{Kingma2014Adam}优化器以$2 \times 10^{-4}$的初始学习率进行$5 \times 10^{4}$的迭代，然后在接下来$5 \times 10^{4}$的迭代中线性降低学习率至$1 \times 10^{5}$。网络使用128维的随机向量z和34维的条件向量c，前者服从$\sigma=1, \mu=0$的正态分布，后者在保证类互斥条件下由均匀分布随机产生。各个loss的系数是$\lambda_{gp}=0.5$，$\lambda_{reg}=10^{-4}$，$\lambda_{adv}=1$。$batchsize=64$。训练在Titan X GPU下需要花费大约20小时的时间。
+
+此处我们展示了我们使用的演示模型的训练loss变化：
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1\linewidth]{figs/good_model_dragan.png}
+  \caption{\kai 演示模型的训练loss图。左上角开始的Discriminator Loss是判别器的总损失，其右的Fake和Real损失分别是判别器识别生成图片和真实图片的损失。左下角的gradient penalty如上文所述，其右是判别器分类图片的交叉熵损失。再右边是Generator Loss的总损失，最右边是两个网络的正则损失。}
+  \label{fig:goodmodel_dragan}
+\end{figure}
+
+可以看出生成器的损失除了刚刚开始的震荡较为剧烈以外，整体在稳步下降。
+
+% 生成结果演变
+
+\subsubsection{参数调节实验}
+
+此处展示的是探究WGAN中$\lambda_{adv}$比例的实验。与演示模型的训练不同，此时我们使用的是Wassertain GAN而不是DRAGAN，在训练的初期不稳定而在中后期十分稳定。训练的学习率从$1 \times 10^{-4}$开始，经过$1 \times 10^{5}$的迭代后
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1\linewidth]{figs/good_model_wgan.png}
+  \caption{\kai WGAN中$lambda_{adv}$调节实验。实验中橘色、蓝色、红色分别对应了$lambda_{adv}=0.25, 1, 4$的情况。}
+  \label{fig:goodmodel_dragan}
+\end{figure}
 
 % -- MNIST --
 
@@ -267,7 +311,7 @@
 % -- 实际设置 -- 【寇明扬】
 %\includepdf[addtotoc={1,section,1,title in toc,cc},pages=1,offset=0cm 0.5cm]{figs/pic.pdf}
 
-下面展示几组图像编辑效果的样例，如图3和图4所示。
+将编辑操作应用于训练好的网络，我们得到了效果优秀的图像生成和编辑效果。如图~\ref{fig:pic}所示，我们的模型我们的模型能够生成高质量的图片，并对其进行稳定的编辑，在编辑过程中不容易丧失图片的真实性。同时编辑支持多种功能，眼睛、头发的颜色，发型等可以按照简笔画给定的方式变化。
 
 \begin{figure}[H]
   \centering
@@ -277,10 +321,7 @@
   \label{fig:pic}
 \end{figure}
 
-
-% -- 选几张展示编辑效果（参考ppt） -- 【寇明扬】
-
-% -- 结论 -- 【寇明扬】
+与基线相比，生成质量上升，生成清晰度上升，编辑稳定性提高，编辑多样性也有提高。
 
 \subsection{网页应用}
 
