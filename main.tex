@@ -121,7 +121,7 @@
 由于动漫人脸生成任务的约束，我们没有语义精确的数据集，难以按照原文复现第一类方法，所以不与之比较。本项目比较的baseline主要有两个，一个是交互式生成对抗网络iGAN~\cite{Zhu2016Generative}，一个是神经图像编辑器Neural Photo Editor~\cite{Brock2016Neural}。这两个均可以完成编辑功能，然而他们的问题主要有：
 
 \begin{enumerate}
-\item 生成精度低。这两个工作并没有将编辑的操作应用在强大的生成网络上，生成的精度最高只能达到64x64。
+\item 生成精度低。这两个工作并没有将编辑的操作应用在强大的生成网络上，生成的精度最高只能达到 $64 \times 64$。
 \item 没有应用于动漫画风的领域上。这两个工作的数据集都是较为完善的真实数据集图片，如户外风景和人类图片数据集，然而本项目中涉及到的动漫数据集属于难度较高的类型，是从网络上爬取的数据集、规模较小、画风多样、混杂有低质量图片等等。
 \item 编辑中有很大的可能丧失图片类别的特性，丧失人脸的特征。
 \end{enumerate}
@@ -131,14 +131,14 @@
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.9\linewidth]{figs/baseline1.PNG}
-  \caption{\kai iGAN在收集到的Getchu数据集上的复现，使用iGAN开源的代码，遵循了原文的设置。图中灰色线条是边缘简笔画，其他的彩色线条是颜色简笔画，图片是在这些简笔画限制下的编辑结果。在生成的过程中经理了频繁的失败，极易丧失生成结果的真实行。展示的图片经过了精心挑选，达到了iGAN所能达到的最佳效果，然而结果仍然十分不美观。}
+  \caption{\kai iGAN在收集到的getchu数据集上的复现，使用iGAN开源的代码，遵循了原文的设置。图中灰色线条是边缘简笔画，其他的彩色线条是颜色简笔画，图片是在这些简笔画限制下的编辑结果。在生成的过程中经理了频繁的失败，极易丧失生成结果的真实行。展示的图片经过了精心挑选，达到了iGAN所能达到的最佳效果，然而结果仍然十分不美观。}
   \label{fig:baseline1}
 \end{figure}
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.9\linewidth]{figs/baseline2.PNG}
-  \caption{\kai Neural Photo Editor (NPE) 在Getchu数据集上的复现，使用了NPE开源的代码，遵循了原文的设置。从左上到右下是在神经图像编辑过程中顺序产生的，用户在1～5张中头发的位置画了红色线条，并在 6～8张中画了蓝色线条。线条在图中没有显示出来，图中有时出现的小方框是画笔的光标，可以忽略。头像颜色变化基本与预期相符，体现了编辑的有效性。}
+  \caption{\kai Neural Photo Editor (NPE) 在getchu数据集上的复现，使用了NPE开源的代码，遵循了原文的设置。从左上到右下是在神经图像编辑过程中顺序产生的，用户在$1\sim5$张中头发的位置画了红色线条，并在 $6\sim8$张中画了蓝色线条。线条在图中没有显示出来，图中有时出现的小方框是画笔的光标，可以忽略。头像颜色变化基本与预期相符，体现了编辑的有效性。}
   \label{fig:baseline2}
 \end{figure}
 
@@ -173,18 +173,18 @@
 
 我们使用训练好的生成网络$G$实现对于图像的编辑工作。
 
-一个生成网络$G(z, c)$接受随机向量$z$（遵循高斯分布）和条件向量$c$作为输入，生成图像$I = G(z, c)$。同时用户给定编辑图像$I'$，例如一副简笔画，则可以据此给出生成图像与编辑图像之间的距离$Dist(G(z, c), I')$。设$I$在像素点$(i, j)$处的RGB颜色向量为$I_{ij}$。定义$M_{ij}$为像素点$(i, j)$处的遮罩向量，含义是用户编辑的部分是否包含像素点$(i, j)$。$M_{ij}$的值只可能为全$0$或全$1$，定义如下：
-
-\begin{equation}
+一个生成网络$G(z, c)$接受随机向量$z$（遵循高斯分布）和条件向量$c$作为输入，生成图像$I = G(z, c)$。同时用户给定编辑图像$I'$，例如一副简笔画，则可以据此给出生成图像与编辑图像之间的距离$Dist(G(z, c), I')$。设$I$在像素点$(i, j)$处的RGB颜色向量为$I_{ij}$。设$M_{ij}$为像素点$(i, j)$处的遮罩向量，含义是用户编辑的部分是否包含像素点$(i, j)$。$M_{ij}$的值只可能为全$0$或全$1$，定义如下：
+%
+\begin{align}
   M_{ij} =
   \begin{cases}
     [0, 0, 0],   &  \text{$\norm{I'_{ij}} = 0$} \\
     [1, 1, 1],   &  \text{$\norm{I'_{ij}} \neq 0$}
   \end{cases}
-\end{equation}
-
-则我们可以基于已有的$M_{ij}$、$I_{ij}$和$I'_{ij}$定义原生成图像与编辑图像之间的距离，这里的距离定义为两幅图中每个用户编辑的像素点距离的$L1-norm$除以一个合理的代表用户修改总点数的值。这样定义的目的是为了仅仅对用户编辑的位置进行修改，且提供与修改像素点数无关的距离函数，避免用户修改的点过少时效果变差。即定义
-
+\end{align}
+%
+则我们可以基于已有的$M_{ij}$、$I_{ij}$和$I'_{ij}$定义原生成图像与编辑图像之间的距离，这里的距离定义为两幅图中每个用户编辑的像素点距离的 L1-norm 除以一个合理的代表用户修改总点数的值。这样定义的目的是为了仅仅对用户编辑的位置进行修改，且提供与修改像素点数无关的距离函数，避免用户修改的点过少时效果变差。即定义
+%
 \begin{align}
   Dist(I, I') = \frac{\sum_{ij} |I_{ij} - I'_{ij}| \cdot M_{ij}}{1 + \sum_{ij} M_{ij}}
 \end{align}
@@ -236,14 +236,14 @@
   \mathcal{L}(G) &= \lambda_{adv}\mathcal{L}_{adv}(G) + \mathcal{L}_{cls}(G) + \lambda_{reg} \mathcal{L}_{2}(D)
 \end{align}
 %
-其中$\mathcal{L}_{2}$是L2正则化损失，$\tilde{x}$是经过扰动的真实数据，
+其中$\mathcal{L}_{2}$是L2正则化损失，$\tilde{x}$是经过扰动的真实数据($\sigma_x$ 为 $x$ 的标准差)，
 %
 \begin{align}
-  \tilde{x} & = x + 0.5 \times \alpha \times std(x) \\
+  \tilde{x} & = x + \frac{1}{2}\alpha\sigma_x \\
   \alpha & \sim U(0, 1)
 \end{align}
 
-网络结构如图 \ref{fig:generator} 和图 \ref{fig:discriminator} 所示。
+我们使用的网络结构如图 \ref{fig:generator} 和图 \ref{fig:discriminator} 所示。
 
 \begin{figure}[H]
   \centering
@@ -251,7 +251,6 @@
   \caption{\kai 生成网络。采用了16个Residual Block，降低了ReLU的出现频率，增加了横跨所有Residual Block的连接。}
   \label{fig:generator}
 \end{figure}
-
 \begin{figure}[H]
   \centering
   \includegraphics[width=1\linewidth]{figs/mod_disc.png}
@@ -259,28 +258,26 @@
   \label{fig:discriminator}
 \end{figure}
 
-我们在探究最佳训练的过程中还使用了Wassertein GAN~\cite{2017arXiv170107875A}。
-
+我们在探究最佳训练的过程中还使用了Wassertein GAN~\cite{2017arXiv170107875A}，其目标和损失函数定义如下：
+%
 \begin{align}
   \min_{\theta_G,\theta_f} \max_{\theta_D} \mathbb{E}_{(x, z, c) \sim (P_r, P_z, P_c)} \Big[ D(x) - D(G(z, c)) + \mathcal{L}_{gp} \Big] \\
   \mathcal{L}_{gp} = \norm{\left(\frac{\partial D(\tilde x)}{\partial \tilde x}\right)^2 - 1 }_2
 \end{align}
-
-$\tilde x$表示了生成图像和真实图像的线性插值，$\alpha \in (0, 1)$是随机的插值系数。
-
+%
+其中$\tilde x$表示了生成图像和真实图像的线性插值，$\alpha \in (0, 1)$是随机的插值系数，即
+%
 \begin{equation}
   \tilde x = \alpha (x - G(z, c)) + G(z, c)
 \end{equation}
 
-为了扩展至第二阶段，我们加入了重建损失项。判别函数输入当前图像，需要重建出z和c
-
-
+为了扩展至第二阶段，我们加入了重建损失项。判别函数输入当前图像，需要重建出 $z$ 和 $c$。
 
 \section{实验}
 
 \subsection{生成对抗训练}
 
-在我们完成项目的过程中，在MNIST数据集和自定义的Getchu数据集上都进行了多次实验，包括网络结构的选取、训练参数的设置，普通GAN训练、WGAN~\cite{2017arXiv170107875A}和DRAGAN等训练方法的选取。
+在我们完成项目的过程中，在MNIST数据集和自定义的getchu数据集上都进行了多次实验，包括网络结构的选取、训练参数的设置，普通GAN训练、WGAN~\cite{2017arXiv170107875A}和DRAGAN等训练方法的选取。
 
 \subsubsection{演示模型的训练}
 
