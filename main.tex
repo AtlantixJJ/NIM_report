@@ -89,11 +89,10 @@
 
 \section{引言}
 
-本项目神经图像编辑项目，是通过简笔画生成图像、编辑已有的图像。
+图像是人类重要的交互途径，然而大部分人却不具有绘画的才能，本项目意图在于以人工智能的手段降低非专业人士在绘图方面的技术壁垒。在我们的作品神经图像编辑中，用户给出简笔画就可以得到算法生成的与预期相似的图画；用户还可以继续完善简笔画，对图像进行符合人类直觉的图像编辑，达到更符合预期的结果。
+通过简笔画生成图像的技术有着广泛的应用前景，例如基于草图的商品搜索，适用于个体创作人的插图绘制，面向兴趣爱好者的辅助工具等等。
 
-% 更多简介与导引 -- 【徐鉴劲】
-
-项目的成果主要有以下部分：
+经过一个学期的时间，我们的项目取得了如下成果：
 
 \begin{enumerate}
 \item 成功复现了高质量的动漫人物头像生成网络。
@@ -101,6 +100,14 @@
 \item 获得了高于基线的生成成果和编辑成果。包括生成真实度上升，生成清晰度上升($64 \times 64 \Rightarrow 128 \times 128$)和肉眼可见的编辑质量上升
 \item 基于Web/Server的交互界面。
 \end{enumerate}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\linewidth]{figs/frontend.pdf}
+  \caption{\kai 项目效果展示。用户通过网页前端绘制简笔画，提交到后台，经过神经网络的优化编辑以后，返回一个符合编辑预期的图像。}
+  \label{fig:frontend}
+\end{figure}
+
 
 \section{相关工作}
 
@@ -110,16 +117,16 @@
 
 \subsection{框架}
 
-我们的项目分为两个阶段实现，第一阶段不编辑一个给定的具体图像，先考虑编辑一个随机生成的图像，如图 \ref{fig:workflow1}；第二阶段再加入一个编码网络来完成对于具体图像的编辑，在图 \ref{fig:workflow2} 中进行了说明。
+我们的项目分为两个阶段实现，第一阶段不编辑一个给定的具体图像，先考虑编辑一个随机生成的图像，如图 \ref{fig:workflow1}；第二阶段再加入一个编码网络来完成对于具体图像的编辑，在图 \ref{fig:workflow2} 中进行了说明。目前我们已经完成了第一个阶段的工作，第二个阶段完成了网络的训练，正在进行前端的调整，以支持上传图像并编辑的功能。
 
-\begin{figure}
+\begin{figure}[H]
   \centering
   \includegraphics[width=1\linewidth]{figs/workflow1.png}
   \caption{\kai 第一阶段的项目解决方法。从随机向量出发，由生成网络生成初始结果，用户给定简笔画和对应的遮罩，由编辑距离函数计算误差和倒数，并借此更新 $z$，达到编辑图像的目的。蓝箭头表示数据流向，橙色箭头表示导数。}
   \label{fig:workflow1}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[H]
   \centering
   \includegraphics[width=1\linewidth]{figs/workflow2.png}
   \caption{\kai 第二阶段的项目解决方法。从一个待编辑图像出发，先通过编码网络生成 $z$ 与 $c$，然后经过生成网络生成重构结果，用户给定简笔画和对应的遮罩，由编辑距离函数计算误差和导数，并借此更新 $z$，达到编辑图像的目的。蓝箭头表示数据流向，橙色箭头表示导数。}
@@ -255,14 +262,6 @@ $\tilde x$表示了生成图像和真实图像的线性插值，$\alpha \in (0, 
   可以看出，我们生成的模型可以进行对动漫人物的发色、瞳色、发型等多方面特征进行编辑，且效果出色。}
   \label{fig:pic}
 \end{figure}
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.9\linewidth]{figs/frontend.pdf}
-  \caption{\kai 图为在前端中进行图像编辑的实例。可以看出，我们实现了在前端中进行图像编辑的功能。}
-  \label{fig:frontend}
-\end{figure}
-
 
 
 % -- 选几张展示编辑效果（参考ppt） -- 【寇明扬】
