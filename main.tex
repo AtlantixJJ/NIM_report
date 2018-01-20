@@ -252,10 +252,8 @@
 
 我们在探究最佳训练的过程中还使用了Wassertein GAN~\cite{2017arXiv170107875A}。
 
-% -- wassertain GAN
-
 \begin{align}
-  \min_{\theta_G,\theta_f} \max_{\theta_D} \mathbb{E}_{(x, z, c) \sim (P_r, P_z, P_c)} \Big[ D(x) - D(G(z, c))\Big] \\
+  \min_{\theta_G,\theta_f} \max_{\theta_D} \mathbb{E}_{(x, z, c) \sim (P_r, P_z, P_c)} \Big[ D(x) - D(G(z, c)) + \mathcal{L}_{gp} \Big] \\
   \mathcal{L}_{gp} = \norm{\left(\frac{\partial D(\tilde x)}{\partial \tilde x}\right)^2 - 1 }_2
 \end{align}
 
@@ -305,7 +303,9 @@ $\tilde x$表示了生成图像和真实图像的线性插值，$\alpha \in (0, 
   \label{fig:goodmodel_wgan}
 \end{figure}
 
-训练过程中loss的变化如~\ref{fig:goodmodel_wgan}所示。我们发现WGAN的判别器loss呈现抛物线的形状，在前中期不断上升，在后期开始一路下滑。在众多WGAN的文献中WGAN普遍呈现初期是较大的负数，之后稳定上升的情况，没有关于先升后降的请情况。判别器损失越趋向于负数，则其判别出生成图像的能力越强，虽然无法推断后期的下降是由什么引起，但是从生成结果~\ref{fig:wgan_evolve}中并没有看出明显的质量下降，网络没有出现训练崩溃的情况。
+训练过程中loss的变化如~\ref{fig:goodmodel_wgan}所示。我们发现WGAN的判别器loss呈现抛物线的形状，在前中期不断上升，在后期开始一路下滑。在众多WGAN的文献中WGAN普遍呈现初期是较大的负数，之后稳定上升的情况，没有关于先升后降应当如何解释的记载。
+
+判别器损失越趋向于负数，则其判别出生成图像的能力越强，虽然无法推断后期的下降是由什么引起，但是从生成结果~\ref{fig:wgan_evolve}中并没有看出明显的质量下降，网络没有出现训练崩溃的情况。
 
 \begin{figure}[H]
   \centering
@@ -314,21 +314,9 @@ $\tilde x$表示了生成图像和真实图像的线性插值，$\alpha \in (0, 
   \label{fig:wgan_evolve}
 \end{figure}
 
-最终我们确定了WGAN使用$lambda_{adv}=1$作为
-
-% -- MNIST --
-
-% -- 训练设置 -- 【徐鉴劲】
-
-% -- IAN与DRAGAN的对比 -- 【徐鉴劲】
-
-% -- GETCHU -- 【徐鉴劲】
-
-% -- DRAGAN网络的loss图、中间演变 -- 【徐鉴劲】
+最终我们确定了WGAN使用$lambda_{adv}=1$作为WGAN训练的设置。然而与DRAGAN的训练结果相比，WGAN的生成质量略有不如，最终选用DRAGAN作为网络训练的方法。
 
 \subsection{图像编辑}
-
-% -- 实际设置 -- 【寇明扬】
 
 将编辑操作应用于训练好的网络，我们得到了效果优秀的图像生成和编辑效果。如图~\ref{fig:pic}所示，我们的模型我们的模型能够生成高质量的图片，并对其进行稳定的编辑，在编辑过程中不容易丧失图片的真实性。同时编辑支持多种功能，眼睛、头发的颜色，发型等可以按照简笔画给定的方式变化。
 
@@ -338,8 +326,6 @@ $\tilde x$表示了生成图像和真实图像的线性插值，$\alpha \in (0, 
   \caption{\kai 编辑效果展示，共六组，每组三幅图。每组中最左边的一幅为原图，中间的一幅图为编辑图，最右边的一幅图为生成的结果图。第一行为成功更换发色的例子，第二行为成功更换瞳色的例子，第三行为成功更换发型的例子。}
   \label{fig:pic}
 \end{figure}
-
-
 
 在图~\ref{fig:pic}中，第一行的两组为更换发色的例子，第二行的两组为更换瞳色的例子，第三行的两组为更换发型的例子。可以看出，第一行中，左边的一组成功将原图中的人物的发色从白色变成了红色，而右边的一组成功将原图中的人物的发色从红色变成了黑色。第二行中，左边的一组成功将人物瞳色从红色变成了蓝色，而右边的一组将人物瞳色从蓝色变成了紫红色。第三行中，左边的一组成功在人物头上添加了一束紫色的头发，而右边的一组成功去掉了人物头两侧的头发，将人物从长发变成了短发。
 
