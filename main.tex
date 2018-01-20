@@ -301,7 +301,7 @@ $\tilde x$表示了生成图像和真实图像的线性插值，$\alpha \in (0, 
 \begin{figure}[H]
   \centering
   \includegraphics[width=1\linewidth]{figs/good_model_wgan.png}
-  \caption{\kai WGAN中$lambda_{adv}$调节实验。实验中橘色、蓝色、红色分别对应了$lambda_{adv}=0.25, 1, 4$的情况。左上角的是判别器的总损失，其右是没有经过系数缩放的Wassertain损失。由于Wassertain GAN的特性，没有明确区分的fake和real判别损失，故其右边一格是空图。左下角依次是gradient penalty，判别器分类损失，生成器总损失。最右边一列是两个网络的正则化。}
+  \caption{\kai WGAN中$\lambda_{adv}$调节实验。实验中橘色、蓝色、红色分别对应了$\lambda_{adv}=0.25, 1, 4$的情况。左上角的是判别器的总损失，其右是没有经过系数缩放的Wassertain损失。由于Wassertain GAN的特性，没有明确区分的fake和real判别损失，故其右边一格是空图。左下角依次是gradient penalty，判别器分类损失，生成器总损失。最右边一列是两个网络的正则化。}
   \label{fig:goodmodel_wgan}
 \end{figure}
 
@@ -314,7 +314,7 @@ $\tilde x$表示了生成图像和真实图像的线性插值，$\alpha \in (0, 
   \label{fig:wgan_evolve}
 \end{figure}
 
-最终我们确定了WGAN使用$lambda_{adv}=1$作为
+最终我们确定了WGAN使用$\lambda_{adv}=1$作为
 
 % -- MNIST --
 
@@ -376,9 +376,9 @@ $\tilde x$表示了生成图像和真实图像的线性插值，$\alpha \in (0, 
 \subsubsection{服务器端}
 由于训练模型使用的是 Python，所以我们选择了基于 Python 的 Django 框架搭建服务器端。
 
-服务器端接收前端发来的笔画图，计算出 $sketch$ 和 $mask$ 矩阵，再根据前端发来的 $z$ 和 $c$，放入之前训练好的网络中，就能得到生成的图像。然后将其和修改后的 $z$ 和 $c$ 返回给前端。
+服务器端接收前端发来的笔画图，计算出 sketch 和 mask 矩阵，再根据前端发来的 $z$ 和 $c$，放入之前训练好的网络中，就能得到生成的图像。然后将其和修改后的 $z$ 和 $c$ 返回给前端。
 
-实际测试时，模型的运行效率非常快，生成一张图像的时间十几毫秒，主要延时在于网络传输。因此，就算是多个用户同时访问网页进行编辑，服务器也完全可以承受住这样的负载。
+实际测试时，模型的运行效率非常快，生成一张图像的时间仅需十几毫秒，主要延时在于网络传输。因此，就算是多个用户同时访问网页进行编辑，服务器也完全可以承受住这样的负载。
 
 \section{结论}
 
