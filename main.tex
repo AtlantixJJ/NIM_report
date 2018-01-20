@@ -101,10 +101,10 @@
 经过一个学期的时间，我们的项目取得了如下成果：
 
 \begin{enumerate}
-\item 成功复现了高质量的动漫人物头像生成网络。
-\item 成功应用编辑图像方法于极深层的神经网络。
-\item 获得了高于基线的生成成果和编辑成果。包括生成真实度上升，生成清晰度上升($64 \times 64 \Rightarrow 128 \times 128$)和肉眼可见的编辑质量上升
-\item 基于Web/Server的交互界面。
+  \item 成功复现了高质量的动漫人物头像生成网络；
+  \item 成功应用编辑图像方法于极深层的神经网络；
+  \item 获得了高于基线的生成成果和编辑成果。包括生成真实度上升，生成清晰度上升($64 \times 64 \Rightarrow 128 \times 128$)和肉眼可见的编辑质量上升；
+  \item 开发了基于浏览器/服务器(B/S)架构的网页应用。
 \end{enumerate}
 
 \begin{figure}[H]
@@ -268,12 +268,12 @@
 %
 其中$\tilde x$表示了生成图像和真实图像的线性插值，$\alpha \in (0, 1)$是随机的插值系数，即
 %
-\begin{equation}
+\begin{align}
   \tilde x = \alpha (x - G(z, c)) + G(z, c)
-\end{equation}
-
+\end{align}
+%
 为了扩展至第二阶段，我们加入了重建损失项。判别函数输入当前图像，除了输出一个真假判别项，还需要重建出 $z$ 和 $c$。生成器接受重建之后的$\hat z$和$\hat c$，生成重建图像$x_{rec}$，并加入关于重建图像的判别器损失和L1像素级别重建损失。同时为了增强判别器回归出$z$ 和 $c$的能力，还加入了判别器重建的损失，$z$由于是连续的，加入L1损失；$c$是离散的且含有类别信息，使用交叉熵作为损失。
-
+%
 \begin{align}
 \mathcal{L}_{IAN}(D) &= \mathcal{L}_{DRAGAN}(D) + \mathcal{L}_{reconstruct}(D) + \lambda_{adv} \mathcal{L}_{rec\_adv}(D)\\
 \mathcal{L}_{IAN}(G) &= \mathcal{L}_{DRAGAN}(G) + \mathcal{L}_{reconstruct}(G) + \lambda_{adv} \mathcal{L}_{rec\_adv}(G) \\
@@ -285,7 +285,7 @@
 \mathcal{L}_{rec\_adv}(G) &= \mathbb{E}_{} \big[ \log (1 - D(x_{rec})) \big] \\
 x_{rec} &= G(D_z(x), D_c(x))
 \end{align}
-
+%
 扩展后的损失函数可用于第二阶段的工作，首先将真实图片经过判别器编码成 $z$ 和 $c$，然后使用生成器进行重建，就可以接入第一阶段的工作，完成重建。
 
 \subsection{数据集}
@@ -317,7 +317,7 @@ x_{rec} &= G(D_z(x), D_c(x))
     \hline
     编号   & 16 & 17 & 18 & 19 & 20 & 21 & 22 & 23 \\ \hline
     \multirow{2}{*}{类别}   & \multicolumn{2}{c|}{发型} & \multirow{2}{1.1cm}{是否脸红} & \multirow{2}{1.1cm}{是否微笑} & \multirow{2}{1.1cm}{是否张嘴} & \multirow{2}{1.1cm}{是否戴帽子} & \multirow{2}{1.1cm}{是否有缎带} & \multirow{2}{1.1cm}{是否戴眼镜} \\ \cline{2-3}
-          & 双马尾 & 卷发 &  &  &  &  & & \\ \hline
+          & 卷发 & 马尾 &  &  &  &  & & \\ \hline
     \hline
     编号   & 24 & 25 & 26 & 27 & 28 & 29 & 30 & 31 \\ \hline
     \multirow{2}{*}{类别} & \multicolumn{8}{c|}{眼睛颜色}  \\ \cline{2-9}
@@ -416,7 +416,7 @@ x_{rec} &= G(D_z(x), D_c(x))
 
 \subsection{网页应用}
 
-我们基于训练好的模型，构建了一个基于 B/S 架构的网页应用，可以通过 Web 浏览器进行在线图像编辑。
+我们基于训练好的模型，开发了一个基于 B/S 架构的网页应用，可以通过 Web 浏览器进行在线图像编辑。
 
 \subsubsection{网页端}
 我们的网页端界面如图 \ref{figure:web1} $\sim$ 图 \ref{figure:web3}  所示，能够运行在任何一款现代浏览器上。
@@ -454,16 +454,20 @@ x_{rec} &= G(D_z(x), D_c(x))
 本项目完成了神经图像编辑在动漫人脸数据集上的应用。我们尝试了多种模型与训练方法，找到了最佳的模型结构与参数，并实现了一个网页前端用于交互用户的编辑操作。与baseline方法相比较，我们的方法取得了如下的提升与贡献：
 
 \begin{enumerate}
-\item 成功复现了高质量的动漫人物头像生成网络。
-\item 成功应用编辑图像方法于极深层的神经网络。
-\item 获得了高于基线的生成成果和编辑成果。包括生成真实度上升，生成清晰度上升($64 \times 64 \Rightarrow 128 \times 128$)和肉眼可见的编辑质量上升
-\item 基于Web/Server的交互界面。
+  \item 成功复现了高质量的动漫人物头像生成网络；
+  \item 成功应用编辑图像方法于极深层的神经网络；
+  \item 获得了高于基线的生成成果和编辑成果。包括生成真实度上升，生成清晰度上升($64 \times 64 \Rightarrow 128 \times 128$)和肉眼可见的编辑质量上升；
+  \item 开发了基于B/S架构的网页应用。
 \end{enumerate}
 
-\section{个人收获}
-
-通过这次的大作业，我理解了诸如WGAN、DCGAN等生成式对抗网络的模型和工作方法，了解并实现了使用GAN进行图像编辑的工作流程，也学习了一些读取网络模型、调试网络参数和处理数据的方法。在团队合作的过程中，我从同组同学的身上学习到了许多新的知识，有了很大的收获。
-% -- 个人收获 ---【寇明扬】 【贾越凯】
+这次大作业，我们的收获主要有：
+\begin{itemize}
+  \item 通过对生成对抗网络(GAN)和 DCGAN、WGAN、DRAGAN 等变种的学习，对其原理和背后的思想有了更深的理解；
+  \item 通过阅读大量论文，提升了文献阅读能力；
+  \item 通过对大型网络模型的构建、训练与调参，对 TensorFlow 的使用更加熟练了，并锻炼了代码能力；
+  \item 通过实现网页应用，学习了各种 Web 技术，并将神经网络模型成功转化为了实际产品；
+  \item 通过小组合作开发，提升了团队协作能力，也从同组同学的身上学习到了许多新的知识。
+\end{itemize}
 
 \medskip
 
