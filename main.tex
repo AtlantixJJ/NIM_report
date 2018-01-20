@@ -92,6 +92,8 @@
 图像是人类重要的交互途径，然而大部分人却不具有绘画的才能，本项目意图在于以人工智能的手段降低非专业人士在绘图方面的技术壁垒。在我们的作品神经图像编辑中，用户给出简笔画就可以得到算法生成的与预期相似的图画；用户还可以继续完善简笔画，对图像进行符合人类直觉的图像编辑，达到更符合预期的结果。
 通过简笔画生成图像的技术有着广泛的应用前景，例如基于草图的商品搜索，适用于个体创作人的插图绘制，面向兴趣爱好者的辅助工具等等。
 
+神经图像编辑的范围十分广阔，本项目研究动漫头像编辑这一子类上的应用。
+
 经过一个学期的时间，我们的项目取得了如下成果：
 
 \begin{enumerate}
@@ -112,6 +114,20 @@
 \section{相关工作}
 
 % --- 所有 --【徐鉴劲】
+
+本项目比较的baseline主要有两个，一个是交互式生成对抗网络iGAN~\cite{Zhu2016Generative}，一个是神经图像编辑器Neural Photo Editor~\cite{Brock2016Neural}。这两个均可以完成编辑功能，然而他们的问题主要有：
+
+\begin{enumerate}
+\item 生成精度低。这两个工作并没有将编辑的操作应用在强大的生成网络上，生成的精度最高只能达到64x64。
+\item 没有应用于
+\end{enumerate}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\linewidth]{figs/frontend.pdf}
+  \caption{\kai 项目效果展示。用户通过网页前端绘制简笔画，提交到后台，经过神经网络的优化编辑以后，返回一个符合编辑预期的图像。}
+  \label{fig:frontend}
+\end{figure}
 
 \section{方法}
 
@@ -185,11 +201,12 @@
 \end{equation}
 
 重复这样的学习，即可使$Dist(G(z, c), I')$不断减小，直到生成符合要求的图片。
-% --- 剩余所有部分 -- 【寇明扬】
+
+% --- 审核：要求能看懂 -- 【jyk】
 
 \subsection{训练网络}
 
-% --- 训练设置 -- 【xjj】
+本项目中对于多种网络结构和训练方法进行了尝试，最终确定了和~\cite{Jin2017Towards}类似的网络结构与训练方法。我们采用了使用多层Residual Block ~\cite{he2016deep} 搭建的深层生成器和判别器，使用DRAGAN ~\cite{kodali2017convergence}加上辅助分类器~\cite{odena2016conditional}的训练方法进行。
 
 设真实数据集为$D_R$，一个训练样例可以表示成$x \sim P_r$，同时随机向量 $z$ 和 $c$ 有$z \sim P_z$和$c \sim P_c$。构造一个判别网络$D(I)$。
 
@@ -197,7 +214,7 @@
   \min_{\theta_G,\theta_f} \max_{\theta_D} \mathbb{E}_{(x, z, c) \sim (P_r, P_z, P_c)} \Big[ \log D(x) + \log\big(1 - D(G(z, c))\big) + \log\big(1 - D(G(f(x)))\big)\Big]
 \end{equation}
 
-进一步地，使用DRAGAN~\cite{kodali2017convergence}替代普通的GAN训练：
+进一步地，使用DRAGAN的训练可以用如下公式表达
 
 \begin{equation}
 \begin{aligned}
@@ -206,33 +223,16 @@
   \mathcal{L}_{gp}(D) &= \mathbb{E}_{\tilde{x}\sim P_{perturebed\_data}}\left[\big(\norm{\nabla_{\tilde{x}}D(\tilde{x})}_2-1\big)^2\right] \\
   \mathcal{L}_{adv}(G) &= \mathbb{E}_{x\sim P_{noise},c\sim P_{cond}}\big[\log D(G(z,c))\big] \\
   \mathcal{L}_{cls}(G) &= \mathbb{E}_{x\sim P_{noise},c\sim P_{cond}}\big[\log P_D[c|G(z,c)]\big] \\
-  \mathcal{L}(D) &= \mathcal{L}_{cls}(D) + \lambda_{adv}\mathcal{L}_{adv}(D)+ \lambda_{gp}\mathcal{L}_{gp}(D) \\
-  \mathcal{L}(G) &= \lambda_{adv}\mathcal{L}_{adv}(G) + \mathcal{L}_{cls}(G)
+  \mathcal{L}(D) &= \mathcal{L}_{cls}(D) + \lambda_{adv}\mathcal{L}_{adv}(D) + \lambda_{gp}\mathcal{L}_{gp}(D) + \lambda_{reg} \mathcal{L}_{2}(D) \\
+  \mathcal{L}(G) &= \lambda_{adv}\mathcal{L}_{adv}(G) + \mathcal{L}_{cls}(G) + \lambda_{reg} \mathcal{L}_{2}(D)
 \end{aligned}
 \end{equation}
 
-% -- 公式：将formule.png写成代码 -- 【jyk】
-
-% -- deprecated begin
-
-其中，$P_{cond}$ 表示给定标签下的先验分布；$\mathcal{L}_{adv}$，$\mathcal{L}_{gp}$ 和 $\mathcal{L}_{reg}$ 分别表示 adversarial，gradient penalty 和 weight regularization 的 loss。
+其中$\tilde{x}$是经过扰动的真实数据，
 
 \begin{equation}
-\begin{aligned}
-  \mathcal{L}_{reg} &= \norm{\theta_D}_2 + \norm{\theta_G}_2 \\
-  \mathcal{L}_{gp} &= \norm{\left(\frac{\partial D(\tilde x)}{\partial \tilde x}\right)^2 - 1 }_2
-\end{aligned}
+\tilde{x} = x \times 0.5 std(x) 
 \end{equation}
-
-$\tilde x$表示了生成图像和真实图像的线性插值，$\alpha \in (0, 1)$是随机的插值系数。
-
-\begin{equation}
-  \tilde x = \alpha (x - G(z, c)) + G(z, c)
-\end{equation}
-
-% -- deprecated end
-
-神经图像编辑的范围十分广阔，本项目研究动漫头像编辑这一子类上的应用。
 
 \section{实验}
 
