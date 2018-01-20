@@ -265,12 +265,6 @@ $\tilde x$表示了生成图像和真实图像的线性插值，$\alpha \in (0, 
   \tilde x = \alpha (x - G(z, c)) + G(z, c)
 \end{equation}
 
-% -- reconstruction GAN
-
-\begin{align}
-  \mathcal{L}_{rec} =
-\end{align}
-
 \section{实验}
 
 \subsection{生成对抗训练}
@@ -295,11 +289,10 @@ $\tilde x$表示了生成图像和真实图像的线性插值，$\alpha \in (0, 
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=1\linewidth]{figs/good_model_dragan.png}
-  \caption{\kai 演示模型的训练loss图。左上角开始的Discriminator Loss是判别器的总损失，其右的Fake和Real损失分别是判别器识别生成图片和真实图片的损失。左下角的gradient penalty如上文所述，其右是判别器分类图片的交叉熵损失。再右边是Generator Loss的总损失，最右边是两个网络的正则损失。}
+  \includegraphics[width=1\linewidth]{figs/good_model_dragan_sample.png}
+  \caption{\kai 演示模型的训练中生成图像的演化。}
   \label{fig:dragan_evolve}
 \end{figure}
-
 
 \subsubsection{参数调节实验}
 
@@ -309,8 +302,19 @@ $\tilde x$表示了生成图像和真实图像的线性插值，$\alpha \in (0, 
   \centering
   \includegraphics[width=1\linewidth]{figs/good_model_wgan.png}
   \caption{\kai WGAN中$lambda_{adv}$调节实验。实验中橘色、蓝色、红色分别对应了$lambda_{adv}=0.25, 1, 4$的情况。左上角的是判别器的总损失，其右是没有经过系数缩放的Wassertain损失。由于Wassertain GAN的特性，没有明确区分的fake和real判别损失，故其右边一格是空图。左下角依次是gradient penalty，判别器分类损失，生成器总损失。最右边一列是两个网络的正则化。}
-  \label{fig:goodmodel_dragan}
+  \label{fig:goodmodel_wgan}
 \end{figure}
+
+训练过程中loss的变化如~\ref{fig:goodmodel_wgan}所示。我们发现WGAN的判别器loss呈现抛物线的形状，在前中期不断上升，在后期开始一路下滑。在众多WGAN的文献中WGAN普遍呈现初期是较大的负数，之后稳定上升的情况，没有关于先升后降的请情况。判别器损失越趋向于负数，则其判别出生成图像的能力越强，虽然无法推断后期的下降是由什么引起，但是从生成结果~\ref{fig:wgan_evolve}中并没有看出明显的质量下降，网络没有出现训练崩溃的情况。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1\linewidth]{figs/good_model_wgan_sample.png}
+  \caption{\kai Wassertain GAN参数调节实验中生成图像的演化。三行由上至下是$lambda_{adv}=0.25, 1, 4$的情况，从左到右是18k, 92k, 182k，对应于WGAN训练过程中初期、中期、后期的生成结果。初期到中期体现出生成质量上升，中期到后期质量略有下降。$lambda_{adv}=1$时结果最好。}
+  \label{fig:wgan_evolve}
+\end{figure}
+
+最终我们确定了WGAN使用$lambda_{adv}=1$作为
 
 % -- MNIST --
 
@@ -325,9 +329,6 @@ $\tilde x$表示了生成图像和真实图像的线性插值，$\alpha \in (0, 
 \subsection{图像编辑}
 
 % -- 实际设置 -- 【寇明扬】
-%\includepdf[addtotoc={1,section,1,title in toc,cc},pages=1,offset=0cm 0.5cm]{figs/pic.pdf}
-
-将编辑操作应用于训练好的网络，我们得到了效果优秀的图像生成和编辑效果。如图~\ref{fig:pic}所示，我们的模型我们的模型能够生成高质量的图片，并对其进行稳定的编辑，在编辑过程中不容易丧失图片的真实性。同时编辑支持多种功能，眼睛、头发的颜色，发型等可以按照简笔画给定的方式变化。
 
 \begin{figure}[H]
   \centering
@@ -336,6 +337,8 @@ $\tilde x$表示了生成图像和真实图像的线性插值，$\alpha \in (0, 
   可以看出，我们生成的模型可以进行对动漫人物的发色、瞳色、发型等多方面特征进行编辑，且效果出色。}
   \label{fig:pic}
 \end{figure}
+
+将编辑操作应用于训练好的网络，我们得到了效果优秀的图像生成和编辑效果。如图~\ref{fig:pic}所示，我们的模型我们的模型能够生成高质量的图片，并对其进行稳定的编辑，在编辑过程中不容易丧失图片的真实性。同时编辑支持多种功能，眼睛、头发的颜色，发型等可以按照简笔画给定的方式变化。
 
 与基线相比，生成质量上升，生成清晰度上升，编辑稳定性提高，编辑多样性也有提高。
 
@@ -376,7 +379,14 @@ $\tilde x$表示了生成图像和真实图像的线性插值，$\alpha \in (0, 
 
 \section{结论}
 
-% -- 总结 -- 【徐鉴劲】
+本项目完成了神经图像编辑在动漫人脸数据集上的应用。我们尝试了多种模型与训练方法，找到了最佳的模型结构与参数，并实现了一个网页前端用于交互用户的编辑操作。与baseline方法相比较，我们的方法取得了如下的提升与贡献：
+
+\begin{enumerate}
+\item 成功复现了高质量的动漫人物头像生成网络。
+\item 成功应用编辑图像方法于极深层的神经网络。
+\item 获得了高于基线的生成成果和编辑成果。包括生成真实度上升，生成清晰度上升($64 \times 64 \Rightarrow 128 \times 128$)和肉眼可见的编辑质量上升
+\item 基于Web/Server的交互界面。
+\end{enumerate}
 
 % -- 个人收获 ---【寇明扬】 【贾越凯】
 
