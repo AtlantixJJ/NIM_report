@@ -227,13 +227,13 @@
 使用DRAGAN的训练可以用如下公式表达：
 %
 \begin{align}
-  \mathcal{L}_{adv}(D) &= -\mathbb{E}_{x\sim P_{data}}[\log D(x)] - \mathbb{E}_{x\sim P_{noise},c\sim P_{cond}}\big[\log(1-D(G(z,c)))\big] \\
+  \mathcal{L}_{adv}(D) &= -\mathbb{E}_{x\sim P_{data}}[\log D(x)] - \mathbb{E}_{z\sim P_{noise},c\sim P_{cond}}\big[\log(1-D(G(z,c)))\big] \\
   \mathcal{L}_{cls}(D) &= \mathbb{E}_{x\sim P_{data}}\big[\log P_D[label_x|x]\big] + \mathbb{E}_{x\sim P_{noise},c\sim P_{cond}}\Big[\log\big(P_D[c|G(z,c)]\big)\Big] \\
   \mathcal{L}_{gp}(D) &= \mathbb{E}_{\tilde{x}\sim P_{perturebed\_data}}\left[\big(\norm{\nabla_{\tilde{x}}D(\tilde{x})}_2-1\big)^2\right] \\
   \mathcal{L}_{adv}(G) &= \mathbb{E}_{x\sim P_{noise},c\sim P_{cond}}\big[\log D(G(z,c))\big] \\
   \mathcal{L}_{cls}(G) &= \mathbb{E}_{x\sim P_{noise},c\sim P_{cond}}\big[\log P_D[c|G(z,c)]\big] \\
-  \mathcal{L}(D) &= \mathcal{L}_{cls}(D) + \lambda_{adv}\mathcal{L}_{adv}(D) + \lambda_{gp}\mathcal{L}_{gp}(D) + \lambda_{reg} \mathcal{L}_{2}(D) \\
-  \mathcal{L}(G) &= \lambda_{adv}\mathcal{L}_{adv}(G) + \mathcal{L}_{cls}(G) + \lambda_{reg} \mathcal{L}_{2}(D)
+  \mathcal{L}_{DRAGAN}(D) &= \mathcal{L}_{cls}(D) + \lambda_{adv}\mathcal{L}_{adv}(D) + \lambda_{gp}\mathcal{L}_{gp}(D) + \lambda_{reg} \mathcal{L}_{2}(D) \\
+  \mathcal{L}_{DRAGAN}(G) &= \lambda_{adv}\mathcal{L}_{adv}(G) + \mathcal{L}_{cls}(G) + \lambda_{reg} \mathcal{L}_{2}(D)
 \end{align}
 %
 其中$\mathcal{L}_{2}$是L2正则化损失，$\tilde{x}$是经过扰动的真实数据($\sigma_x$ 为 $x$ 的标准差)，
@@ -271,7 +271,19 @@
   \tilde x = \alpha (x - G(z, c)) + G(z, c)
 \end{equation}
 
-为了扩展至第二阶段，我们加入了重建损失项。判别函数输入当前图像，需要重建出 $z$ 和 $c$。
+为了扩展至第二阶段，我们加入了重建损失项。判别函数输入当前图像，除了输出一个真假判别项，还需要重建出 $z$ 和 $c$。生成器接受重建之后的$\hat z$和$\hat c$，生成重建图像$x_{rec}$，并加入关于重建图像的判别器损失和L1像素级别重建损失。
+
+\begin{align}
+  \mathcal{L}_{IAN}(D) &= \mathcal{L}_{DRAGAN}(D) + \mathcal{L}_{reconstruct}(D) + \lambda_{adv} \mathcal{L}_{rec\_adv}(D)\\
+  \mathcal{L}_{IAN}(G) &= \mathcal{L}_{DRAGAN}(G) + \mathcal{L}_{reconstruct}(G) + \lambda_{adv} \mathcal{L}_{rec\_adv}(G) \\
+  \mathcal{L}_{reconstruct}(D) = \mathbb{E}_{x \sim P_{data}} \big[ \norm{x_{rec} - x} \big] + \mathbb{E}_{z\sim P_{noise},c\sim P_{cond}} \big[\norm{D_z(G(z, c)) - z} + P_D[c|D_c(G(z, c))] \big] \\
+  \mathcal{L}_{reconstruct}(G) = \mathbb{E}_{x \sim P_{data}} \big[ \norm{x_{rec} - x} \big] + \mathbb{E}_{z\sim P_{noise},c\sim P_{cond}} \big[\norm{D_z(G(z, c)) - z} + P_D[c|D_c(G(z, c))] \big] \\
+  \mathcal{L}_{rec\_adv}(D) = \mathbb{E}_{} \big[ log D(x_{rec}) \big] \\
+  \mathcal{L}_{rec\_adv}(G) = \mathbb{E}_{} \big[ log (1 - D(x_{rec})) \big] \\
+  x_{rec} = G(D_z(x), D_c(x))
+\end{align}
+
+扩展后的损失函数可用于
 
 \section{实验}
 
@@ -326,6 +338,10 @@
 
 最终我们确定了WGAN使用$\lambda_{adv}=1$作为WGAN训练的设置。然而与DRAGAN的训练结果相比，WGAN的生成质量略有不如，最终选用DRAGAN作为网络训练的方法。
 
+\subsubsection{MNIST的IAN训练}
+
+
+
 \subsection{图像编辑}
 
 \subsubsection{实际设置}
@@ -340,16 +356,7 @@
 
 \subsubsection{效果展示}
 
-将编辑操作应用于训练好的网络，我们得到了效果优秀的图像生成和编辑效果。如图~\ref{fig:pic}所示，我们的模型我们的模型能够生成高质量的图片，并对其进行稳定的编辑，在编辑过程中不容易丧失图片的真实性。同时编辑支持多种功能，眼睛、头发的颜色，发型等可以按照简笔画给定的方式变化。
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.9\linewidth]{figs/pic.png}
-  \caption{\kai 编辑效果展示，共六组，每组三幅图。每组中最左边的一幅为原图，中间的一幅图为编辑图，最右边的一幅图为生成的结果图。第一行为成功更换发色的例子，第二行为成功更换瞳色的例子，第三行为成功更换发型的例子。}
-  \label{fig:pic}
-\end{figure}
-
-
+将编辑操作应用于训练好的网络，我们得到了效果优秀的图像生成和编辑效果。我们的模型我们的模型能够生成高质量的图片，并对其进行稳定的编辑，在编辑过程中不容易丧失图片的真实性。同时编辑支持多种功能，眼睛、头发的颜色，发型等可以按照简笔画给定的方式变化。
 
 在图~\ref{fig:pic}中，第一行的两组为更换发色的例子，第二行的两组为更换瞳色的例子，第三行的两组为更换发型的例子。可以看出，第一行中，左边的一组成功将原图中的人物的发色从白色变成了红色，而右边的一组成功将原图中的人物的发色从红色变成了黑色。第二行中，左边的一组成功将人物瞳色从红色变成了蓝色，而右边的一组将人物瞳色从蓝色变成了紫红色。第三行中，左边的一组成功在人物头上添加了一束紫色的头发，而右边的一组成功去掉了人物头两侧的头发，将人物从长发变成了短发。
 
