@@ -8,4 +8,5 @@ finalreport.pdf
 *.fdb_latexmk
 *.fls
 *.gz
+*(busy)
 .DS_Store
